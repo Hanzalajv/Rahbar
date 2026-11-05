@@ -1,0 +1,17 @@
+# Branch Protection Evidence
+
+GitHub Repository Branch Protection Rules for `main`:
+- Require a pull request before merging: Enabled
+  - Require approvals: 1 approval
+  - Dismiss stale pull request approvals when new commits are pushed: Enabled
+  - Require review from Code Owners: Enabled
+- Require status checks to pass before merging: Enabled
+  - Require branches to be up to date before merging: Enabled
+  - Required status checks:
+    - `lint` (ruff & mypy)
+    - `test` (pytest >= 60% coverage)
+    - `manifests` (kustomize build | kubeconform -strict)
+    - `scan` (Trivy security scan)
+    - `e2e-eval` (kind cluster + indexer Job + eval gate)
+- Do not allow bypassing the above settings: Enabled
+- Restrict who can push to matching branches: No direct pushes permitted

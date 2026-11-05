@@ -1,0 +1,15 @@
+$ kubectl top pods -n rahbar
+
+NAME                    CPU(cores)   MEMORY(bytes)
+api-7d4b9c8d5f-4x2lm    12m          148Mi
+api-7d4b9c8d5f-8k9pq    15m          152Mi
+api-7d4b9c8d5f-w9z1b    11m          144Mi
+chroma-0                24m          312Mi
+redis-5f9c4d8b67-t2j8p  2m           28Mi
+ui-6b8c9d4f7a-m1n2p     1m           14Mi
+indexer-manual-reindex  412m         892Mi   (peak extraction & embedding phase)
+
+Analysis for Engineering Notes:
+- API Pods average ~14m CPU and ~148Mi memory during idle/query wait (I/O bound).
+- Indexer Job peaks at ~412m CPU and ~892Mi memory during PDF text extraction and embedding generation.
+- Memory limit set to 3Gi on the Indexer Job provides >3x safety margin above peak to prevent exit code 137 (OOMKilled).

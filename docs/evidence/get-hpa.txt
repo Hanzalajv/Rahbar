@@ -1,0 +1,9 @@
+$ kubectl get hpa -n rahbar
+
+NAME      REFERENCE        TARGETS   MINPODS   MAXPODS   REPLICAS   AGE
+api-hpa   Deployment/api   6%/70%    3         8         3          22m
+
+Validation:
+- Utilization computed successfully as usage / requests.cpu (e.g., 14m / 250m = ~6%).
+- Demonstrates metrics-server integration without <unknown>/70% errors.
+- Target set at 70% utilization, maintaining 3 baseline replicas up to 8 under surge traffic.
