@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rahbar-config
+  namespace: rahbar
+  labels:
+    app.kubernetes.io/name: rahbar
+data:
+  # Indexer parameters
+  CHUNK_SIZE: "400"
+  CHUNK_OVERLAP: "50"
+  CORPUS_DIR: "/corpus"
+
+  # Retrieval parameters
+  TOP_K: "5"
+  RELEVANCE_FLOOR: "0.65"
+
+  # Semantic cache parameters
+  CACHE_THRESHOLD: "0.92"
+  REDIS_HOST: "redis"
+  REDIS_PORT: "6379"
+  REDIS_ENABLED: "true"
+
+  # Generation & temperature (0.2 justified: factual extraction with stable JSON output)
+  TEMPERATURE: "0.2"
+  LLM_MODEL: "llama3.2:3b"
+  LLM_PROVIDER: "ollama-host"
+  OLLAMA_URL: "http://host.minikube.internal:11434"
+  HOSTED_BASE_URL: ""
+
+  # Pinned embedding model across indexer and API
+  EMBED_MODEL: "nomic-embed-text"
+
+  # Vector store
+  CHROMA_HOST: "chroma"
+  CHROMA_PORT: "8000"
+  CHROMA_COLLECTION: "rahbar"
+  LOG_LEVEL: "INFO"
