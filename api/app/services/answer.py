@@ -4,11 +4,13 @@ from __future__ import annotations
 
 import logging
 import re
+import time
 
 from ..config import Settings
 from ..logjson import request_id_var
 from ..providers.llm.base import LLMProvider
 from ..retrieval.base import Retriever
+from ..routes import metrics
 from ..schemas import Answer, AskResponse, Citation, Passage, RetrievedRef
 from .cache import get_cache
 
@@ -21,13 +23,9 @@ def _is_followup(question: str) -> bool:
 
 
 def _verify_citations(citations: list[Citation], passages: list[Passage]) -> list[Citation]:
-    """Ensure every citation strictly matches a chunk actually retrieved for this request.
-
-    Discards fabricated citations to prevent -10 rubric deductions.
-    """
+    """Ensure every citation strictly matches a chunk actually retrieved for this request."""
     valid_citations: list[Citation] = []
     for c in citations:
-        # Check against retrieved passages
         match_found = any(
             p.source.lower() == c.source.lower()
             and (c.section.lower() in p.section.lower() or p.section.lower() in c.section.lower())
@@ -56,6 +54,7 @@ def answer_question(
     if not skip_cache and not is_followup:
         cached_answer = cache.get(question)
         if cached_answer is not None:
+            metrics.CACHE_HITS.inc()
             return AskResponse(
                 request_id=rid,
                 answer=cached_answer.answer,
@@ -65,14 +64,18 @@ def answer_question(
                 retrieved=[],
                 provider="cache",
             )
+        metrics.CACHE_MISSES.inc()
 
     # 2. Retrieve top-k passages from Chroma
+    t_ret_start = time.perf_counter()
     passages = retriever.retrieve(question, k=settings.top_k)
+    metrics.RETRIEVAL_LATENCY.observe(time.perf_counter() - t_ret_start)
 
     # 3. Relevance Floor Check: honest abstention when nothing meets quality threshold
     qualifying_passages = [p for p in passages if p.score >= settings.relevance_floor]
 
     if not passages or (retriever.name != "stub" and not qualifying_passages):
+        metrics.ABSTENTIONS.inc()
         log.info(
             "abstaining: no passages cleared relevance floor",
             extra={"top_score": passages[0].score if passages else 0.0, "floor": settings.relevance_floor},
@@ -87,15 +90,27 @@ def answer_question(
     else:
         # 4. Generate answer using LLM with grounded prompt
         effective_passages = qualifying_passages if qualifying_passages else passages
+        prompt_token_est = int(len(question.split()) * 1.3) + sum(int(len(p.text.split()) * 1.3) for p in effective_passages)
+        metrics.TOKENS_IN.inc(prompt_token_est)
+
+        t_gen_start = time.perf_counter()
         answer = provider.generate(question, effective_passages)
+        metrics.GENERATION_LATENCY.observe(time.perf_counter() - t_gen_start)
+
+        out_token_est = int(len(answer.answer.split()) * 1.3)
+        metrics.TOKENS_OUT.inc(out_token_est)
+
+        if "Fallback" in answer.reasoning:
+            metrics.FALLBACKS.inc()
 
         # 5. Citation verification: enforce grounding against retrieved passages
         if answer.answered_from_context:
             answer.citations = _verify_citations(answer.citations, effective_passages)
             if not answer.citations and qualifying_passages:
-                # If model failed to cite, cite top qualifying chunk as ground truth
                 top = qualifying_passages[0]
                 answer.citations = [Citation(source=top.source, section=top.section, page=top.page)]
+        else:
+            metrics.ABSTENTIONS.inc()
 
     # 6. Semantic Cache store (never cache abstentions, low confidence, or follow-ups)
     if not is_followup and answer.answered_from_context and answer.confidence != "low":
