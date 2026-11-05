@@ -82,20 +82,25 @@ python scripts/check_submission.py
 > No mechanical failures.
 > ```
 
-### Step 2.3 — Run the Automated Test Suite
-Run the 22 automated unit and integration tests:
+### Step 2.3 — Corpus Download & Manifest Verification
+The raw corpus PDFs live in `corpus/raw/` which is **strictly gitignored** (never committed to git). Only `corpus/fetch.py` and `corpus/MANIFEST.md` are tracked in version control.
+
+#### A. Download All Documents from Scratch
+To download all authentic FAST-NUCES policies directly from official sources:
 
 ```powershell
-python -m pytest
+python corpus/fetch.py
 ```
-> **Expected Output:**
-> ```
-> ======================= 22 passed in ~10s =======================
-> ```
-> *(Tests verify honest abstention, prompt injection defense, fallback schemas, semantic cache invalidation, and the embedding-pin guardrail).*
 
-### Step 2.4 — Verify Document Corpus Checksums
-Check that all 7 FAST-NUCES administrative documents match their SHA-256 signatures:
+`corpus/fetch.py` handles:
+- **Polite rate limiting:** 2.0s pause between requests.
+- **URL encoding:** handles spaces in paths like `/Admissions/ProspectusUpload/Academic%20Rules%20and%20Regulations.pdf`.
+- **Google Drive transforms:** converts preview links `drive.google.com/file/d/<ID>/view` into direct download endpoints `drive.google.com/uc?export=download&id=<ID>`.
+- **The Aug 2023 Handbook verification:** downloads the 14.88 MB PDF (`undergraduate-academic-rules-aug-2023.pdf`) and confirms it opens and parses cleanly.
+- **Scanned PDF handling:** downloads `faculty-entrepreneurship-and-technical-start-ups-policy.pdf` (confirmed to have 0 embedded fonts, routed to OCR).
+
+#### B. Verify Downloaded Files Against MANIFEST.md
+Confirm all SHA-256 checksums match `corpus/MANIFEST.md`:
 
 ```powershell
 python corpus/fetch.py --verify
@@ -111,6 +116,28 @@ python corpus/fetch.py --verify
 >   ok        student-handbook-jun-2026.pdf
 > 7 of 7 match the manifest
 > ```
+
+| Document | Location / Source | Property Satisfied | Size | SHA-256 (first 12) |
+| :--- | :--- | :--- | :--- | :--- |
+| `academic-rules-handbook-jun-2026.pdf` | `/public/downloads/Academic_Rules_Handbook_2026.pdf` | Current policy rules | 987 KB | `4cfee3e191b8...` |
+| `undergraduate-academic-rules-aug-2023.pdf` | `/public/downloads/Academic-Rules-Undergrad-Aug-2023.pdf` | Superseded version pair | 14.88 MB | `cddfe1f5e977...` |
+| `prospectus-2026-academic-rules-and-regulations.pdf` | `/Admissions/ProspectusUpload/` | Dual-column layout | 7.06 MB | `a7e7f6896a59...` |
+| `faculty-entrepreneurship-and-technical-start-ups-policy.pdf` | `/OricResources/ResearchPolicies/` | Scanned document (OCR) | 3.87 MB | `c2d5c7648d15...` |
+| `annual-report-2023-24.pdf` | Downloads page | Tables & multi-page metrics | 5.10 MB | `3c9d89e84af2...` |
+| `grading-criteria.html` | `/Student/Grading` | Exact term definitions | 95 KB | `66a995b4d847...` |
+| `student-handbook-jun-2026.pdf` | `/public/downloads/` | Long definitions | 1.98 MB | `717eb4b8d37e...` |
+
+### Step 2.4 — Run the Automated Test Suite
+Run the 22 automated unit and integration tests:
+
+```powershell
+python -m pytest
+```
+> **Expected Output:**
+> ```
+> ======================= 22 passed in ~10s =======================
+> ```
+> *(Tests verify honest abstention, prompt injection defense, fallback schemas, semantic cache invalidation, and the embedding-pin guardrail).*
 
 ### Step 2.5 — Launch the Local Web UI & API Server
 Run the unified server with UI enabled:
@@ -421,3 +448,4 @@ Get-Process -Id (Get-NetTCPConnection -LocalPort 8000).OwningProcess | Stop-Proc
 | **Stream Indexer Logs** | `kubectl logs -f job/manual-seed-01 -n rahbar` |
 | **Check Pod Status** | `kubectl get pods,svc,hpa -n rahbar` |
 | **Run Golden Evaluation** | `python eval/run_eval.py --api http://localhost:8000 --golden eval/golden.yaml` |
+
