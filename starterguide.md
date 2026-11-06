@@ -448,4 +448,5 @@ Get-Process -Id (Get-NetTCPConnection -LocalPort 8000).OwningProcess | Stop-Proc
 | **Stream Indexer Logs** | `kubectl logs -f job/manual-seed-01 -n rahbar` |
 | **Check Pod Status** | `kubectl get pods,svc,hpa -n rahbar` |
 | **Run Golden Evaluation** | `python eval/run_eval.py --api http://localhost:8000 --golden eval/golden.yaml` |
+| **Verify Team Authorship & Commits** | `git shortlog -sn --all --no-merges` |
 
