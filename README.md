@@ -137,3 +137,10 @@ curl -s -X POST "http://rahbar.local/api/ask" \
   -H "Content-Type: application/json" \
   -d '{"question": "What is the curfew time for student hostels at FAST-NUCES?"}' | jq .
 ```
+
+---
+
+## 6. Team & Authorship
+
+- **Hanzala Ahsan** (`24i-3150` · `i243150@isb.nu.edu.pk`)
+- **Sawaira Fareed** (`24i-3043` · `i243043@isb.nu.edu.pk`)
