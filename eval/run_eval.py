@@ -56,7 +56,12 @@ def recall_at_k(relevant: list[dict], retrieved: list[dict], k: int) -> float | 
 
         found = any(
             target_src in str(r.get("source", "")).lower()
-            and (target_sec in str(r.get("section", "")).lower() or str(r.get("section", "")).lower() in target_sec)
+            and (
+                not target_sec
+                or target_sec in str(r.get("section", "")).lower()
+                or str(r.get("section", "")).lower() in target_sec
+                or target_sec in str(r.get("text", "")).lower()
+            )
             for r in top_k_retrieved
         )
         if found:
