@@ -12,4 +12,9 @@ Under course policy, AI tools are permitted provided their usage is honestly and
 ---
 
 ## Authorship and Understanding Declaration
+
+### Pair Project Team
+- **Hanzala Ahsan** (Roll: `24i-3150`, `i243150@isb.nu.edu.pk`) — Architecture, Ingestion Pipeline, API & Hybrid Retrieval, ADRs.
+- **Sawaira Fareed** (Roll: `24i-3043`, `i243043@isb.nu.edu.pk`) — Corpus Acquisition, Evaluation Harness, Kubernetes Manifests, CI/CD Gateways.
+
 We have reviewed, executed, tested, and validated every line of code, Dockerfile configuration, and Kubernetes manifest in this repository. All architectural decisions (including indexer-as-Job single-writer safety, Redis semantic caching, and embedding-model startup guardrails) reflect our own understanding and will be defended in the course viva.
