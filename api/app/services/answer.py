@@ -52,16 +52,16 @@ def answer_question(
     # 1. Semantic cache check (skip for follow-up turns or if requested)
     is_followup = _is_followup(question)
     if not skip_cache and not is_followup:
-        cached_answer = cache.get(question)
-        if cached_answer is not None:
+        cached_ans = cache.get(question)
+        if cached_ans is not None:
             metrics.CACHE_HITS.inc()
             return AskResponse(
                 request_id=rid,
-                answer=cached_answer.answer,
-                citations=cached_answer.citations,
-                answered_from_context=cached_answer.answered_from_context,
-                confidence=cached_answer.confidence,
-                retrieved=[],
+                answer=cached_ans.answer,
+                citations=cached_ans.citations,
+                answered_from_context=cached_ans.answered_from_context,
+                confidence=cached_ans.confidence,
+                retrieved=cached_ans.retrieved,
                 provider="cache",
             )
         metrics.CACHE_MISSES.inc()
@@ -114,7 +114,7 @@ def answer_question(
 
     # 6. Semantic Cache store (never cache abstentions, low confidence, or follow-ups)
     if not is_followup and answer.answered_from_context and answer.confidence != "low":
-        cache.set(question, answer)
+        cache.set(question, answer, retrieved=passages)
 
     # 7. Structured observability logging
     log.info(
@@ -142,6 +142,7 @@ def answer_question(
                 source=p.source,
                 section=p.section,
                 page=p.page,
+                text=p.text,
                 score=p.score,
             )
             for p in passages

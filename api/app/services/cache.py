@@ -8,11 +8,18 @@ import math
 import time
 from typing import Any
 
+from pydantic import Field
+
 from ..config import Settings
 from ..retrieval.chroma import embed_query
-from ..schemas import Answer, Citation
+from ..schemas import Answer, Citation, Passage, RetrievedRef
 
 log = logging.getLogger("rahbar.cache")
+
+
+class CachedAnswer(Answer):
+    """Enriched Answer preserving retrieved references across cache hits."""
+    retrieved: list[RetrievedRef] = Field(default_factory=list)
 
 
 def _cosine_similarity(v1: list[float], v2: list[float]) -> float:
@@ -60,7 +67,7 @@ class SemanticCache:
         """Alias for cache invalidation."""
         self.clear_cache()
 
-    def get(self, question: str) -> Answer | None:
+    def get(self, question: str) -> CachedAnswer | None:
         """Search cache for a semantic hit exceeding similarity threshold."""
         query_vec = embed_query(question, self.settings)
 
@@ -77,11 +84,13 @@ class SemanticCache:
         # 2. Check threshold
         if best_match and best_score >= self.threshold:
             log.info("cache hit", extra={"score": round(best_score, 4), "threshold": self.threshold})
-            return Answer.model_validate(best_match["answer"])
+            ans_dict = dict(best_match["answer"])
+            ans_dict["retrieved"] = best_match.get("retrieved", [])
+            return CachedAnswer.model_validate(ans_dict)
 
         return None
 
-    def set(self, question: str, answer: Answer) -> None:
+    def set(self, question: str, answer: Answer, retrieved: list[Passage] | None = None) -> None:
         """Store turn in cache. NEVER cache abstentions, out-of-scope, or follow-ups."""
         # Never-cache rules (section 3.3):
         # A cached mistake is served to everyone.
@@ -94,17 +103,21 @@ class SemanticCache:
             return
 
         query_vec = embed_query(question, self.settings)
+        refs = [
+            RetrievedRef(chunk_id=p.chunk_id, source=p.source, section=p.section, page=p.page, text=p.text, score=p.score).model_dump()
+            for p in (retrieved or [])
+        ]
         entry = {
             "question": question,
             "embedding": query_vec,
             "answer": answer.model_dump(),
+            "retrieved": refs,
             "timestamp": time.time(),
         }
         self._local_cache.append(entry)
 
         if self._redis is not None:
             try:
-                # Keyed with question hash and payload
                 key = f"rahbar:cache:{hash(question)}"
                 self._redis.set(key, json.dumps(entry), ex=86400)
             except Exception as exc:
