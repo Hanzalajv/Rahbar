@@ -12,7 +12,7 @@ from pydantic import Field
 
 from ..config import Settings
 from ..retrieval.chroma import embed_query
-from ..schemas import Answer, Citation, Passage, RetrievedRef
+from ..schemas import Answer, Passage, RetrievedRef
 
 log = logging.getLogger("rahbar.cache")
 

@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import re
-from typing import Iterator
 
 from .models import Chunk, Document
 
