@@ -58,11 +58,13 @@ class Settings:
 
 
 def get_settings() -> Settings:
+    default_retriever = "chroma" if os.path.exists("./chroma_data") else "stub"
+    default_host = "local" if os.path.exists("./chroma_data") else "chroma"
     return Settings(
-        retriever=os.environ.get("RETRIEVER", "stub"),
+        retriever=os.environ.get("RETRIEVER", default_retriever),
         llm_provider=os.environ.get("LLM_PROVIDER", "stub"),
         embed_model=os.environ.get("EMBED_MODEL", "nomic-embed-text"),
-        chroma_host=os.environ.get("CHROMA_HOST", "chroma"),
+        chroma_host=os.environ.get("CHROMA_HOST", default_host),
         chroma_port=_int("CHROMA_PORT", 8000),
         collection=os.environ.get("CHROMA_COLLECTION", "rahbar"),
         top_k=_int("TOP_K", 5),
