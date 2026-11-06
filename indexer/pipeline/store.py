@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from typing import Any
 
 from .config import IndexerSettings
@@ -9,15 +10,26 @@ from .models import Chunk
 
 
 def get_client(settings: IndexerSettings) -> Any:
-    """Instantiate ChromaDB client based on configuration."""
+    """Instantiate ChromaDB client based on configuration with persistent local fallback."""
     import chromadb
     from chromadb.config import Settings as ChromaSettings
 
-    return chromadb.HttpClient(
-        host=settings.chroma_host,
-        port=settings.chroma_port,
-        settings=ChromaSettings(anonymized_telemetry=False),
-    )
+    host = getattr(settings, "chroma_host", "")
+    if host in ("local", "embedded", "persistent") or os.environ.get("CHROMA_PERSIST_DIR"):
+        persist_dir = os.environ.get("CHROMA_PERSIST_DIR", "./chroma_data")
+        return chromadb.PersistentClient(path=persist_dir)
+
+    try:
+        client = chromadb.HttpClient(
+            host=settings.chroma_host,
+            port=settings.chroma_port,
+            settings=ChromaSettings(anonymized_telemetry=False),
+        )
+        client.heartbeat()
+        return client
+    except Exception:
+        persist_dir = os.environ.get("CHROMA_PERSIST_DIR", "./chroma_data")
+        return chromadb.PersistentClient(path=persist_dir)
 
 
 def store(chunks: list[Chunk], vectors: list[list[float]], settings: IndexerSettings, client: Any = None) -> int:
