@@ -108,6 +108,11 @@ jobs:
         with:
           cluster_name: rahbar-eval-cluster
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
       - name: Install dependencies
         run: |
           pip install -r api/requirements.txt -r indexer/requirements.txt httpx pyyaml
