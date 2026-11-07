@@ -1,0 +1,11 @@
+$ kubectl get endpoints -n rahbar
+
+NAME     ENDPOINTS                                      AGE
+api      10.244.0.14:8000,10.244.0.15:8000,10.244.0.16:8000   14m
+chroma   10.244.0.11:8000                               28m
+redis    10.244.0.12:6379                               28m
+ui       10.244.0.13:8080                               28m
+
+Validation:
+- Service `api` selector correctly discovered all 3 active API pod IPs (10.244.0.14, 10.244.0.15, 10.244.0.16).
+- All endpoints healthy and verified via readinessProbe.

@@ -51,6 +51,7 @@ class RetrievedRef(BaseModel):
     source: str
     section: str
     page: int | None = None
+    text: str | None = None
     score: float
 
 

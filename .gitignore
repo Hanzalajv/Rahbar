@@ -24,3 +24,5 @@ venv/
 # Local scratch
 *.log
 .DS_Store
+chroma_data/
+scratch/

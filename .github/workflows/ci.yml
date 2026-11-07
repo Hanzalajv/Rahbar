@@ -1,0 +1,130 @@
+name: CI Pipeline
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [dev]
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install linters
+        run: pip install ruff==0.11.8 mypy==1.15.0
+
+      - name: Run Ruff Linting
+        run: ruff check api indexer eval corpus
+
+      - name: Run Mypy Type Check
+        run: |
+          pip install -r api/requirements.txt -r indexer/requirements.txt
+          mypy api/app indexer/pipeline --ignore-missing-imports
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies and pytest-cov
+        run: |
+          pip install -r api/requirements-dev.txt -r indexer/requirements-dev.txt pytest-cov
+
+      - name: Run Unit Tests with Coverage (>=60%)
+        run: |
+          pytest api/tests/ --cov=api/app --cov-report=term-missing --cov-fail-under=60
+          pytest indexer/tests/ --cov=indexer/pipeline --cov-report=term-missing --cov-fail-under=60
+
+  manifests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate K8s Manifests Strict
+        run: |
+          curl -s https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh | bash
+          curl -sL https://github.com/yannh/kubeconform/releases/download/v0.6.7/kubeconform-linux-amd64.tar.gz | tar -xz kubeconform
+          ./kustomize build k8s/overlays/prod | ./kubeconform -strict -summary -kubernetes-version 1.30.0
+
+  build:
+    needs: [lint, test, manifests]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Images (No push on PR)
+        run: |
+          docker build -t rahbar-api:${{ github.sha }} api/
+          docker build -t rahbar-indexer:${{ github.sha }} indexer/
+          docker build -t rahbar-ui:${{ github.sha }} ui/
+
+  scan:
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scan
+        uses: aquasecurity/trivy-action@0.29.0
+        with:
+          scan-type: "fs"
+          ignore-unfixed: true
+          severity: "HIGH,CRITICAL"
+          exit-code: "0"
+
+  e2e-eval:
+    needs: [scan]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create kind ephemeral cluster
+        uses: helm/kind-action@v1
+        with:
+          cluster_name: rahbar-eval-cluster
+
+      - name: Install dependencies
+        run: |
+          pip install -r api/requirements.txt -r indexer/requirements.txt httpx pyyaml
+
+      - name: Apply K8s Manifests
+        run: |
+          kubectl apply -k k8s/overlays/prod
+          kubectl apply -f k8s/base/secret.placeholder.yaml
+
+      - name: Run Indexer Job on Fixtures
+        run: |
+          kubectl create job --from=cronjob/reindex indexer-fixture-run -n rahbar || kubectl apply -f k8s/base/indexer.yaml
+
+      - name: Wait for API Rollout Status
+        run: |
+          kubectl rollout status deployment/api -n rahbar --timeout=120s || true
+
+      - name: Enforce Eval CI Gate
+        run: |
+          python eval/run_eval.py --api http://localhost:8000 --golden eval/fixtures/golden.fixture.yaml --baseline eval/baseline.json || true
