@@ -35,7 +35,6 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Log in to Docker Hub Registry
-        if: ${{ secrets.DOCKERHUB_USERNAME != '' && secrets.DOCKERHUB_TOKEN != '' }}
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -44,18 +43,14 @@ jobs:
       - name: Build and Push Images Tagged by Commit SHA
         run: |
           IMAGE_TAG="${{ github.sha }}"
-          REPO="${{ secrets.DOCKERHUB_USERNAME || 'rahbar' }}"
+          REPO="${{ secrets.DOCKERHUB_USERNAME }}"
           docker build -t ${REPO}/rahbar-api:${IMAGE_TAG} api/
           docker build -t ${REPO}/rahbar-indexer:${IMAGE_TAG} indexer/
           docker build -t ${REPO}/rahbar-ui:${IMAGE_TAG} ui/
 
-          if [ -n "${{ secrets.DOCKERHUB_USERNAME }}" ] && [ -n "${{ secrets.DOCKERHUB_TOKEN }}" ]; then
-            docker push ${REPO}/rahbar-api:${IMAGE_TAG}
-            docker push ${REPO}/rahbar-indexer:${IMAGE_TAG}
-            docker push ${REPO}/rahbar-ui:${IMAGE_TAG}
-          else
-            echo "DOCKERHUB_USERNAME / DOCKERHUB_TOKEN not configured in GitHub Secrets, skipping push."
-          fi
+          docker push ${REPO}/rahbar-api:${IMAGE_TAG}
+          docker push ${REPO}/rahbar-indexer:${IMAGE_TAG}
+          docker push ${REPO}/rahbar-ui:${IMAGE_TAG}
 
   deploy:
     needs: [build-push]
