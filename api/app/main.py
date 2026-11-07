@@ -38,23 +38,24 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     # The API reads the collection metadata and compares embed_model and dimension
     if settings.retriever == "chroma":
         try:
-            client = app.state.retriever.client
-            collection = client.get_collection(settings.collection)
-            col_meta = collection.metadata or {}
-            col_model = col_meta.get("embed_model")
-            col_dim = col_meta.get("dimension")
+            client = getattr(app.state.retriever, "client", None)
+            if client is not None:
+                collection = client.get_collection(settings.collection)
+                col_meta = collection.metadata or {}
+                col_model = col_meta.get("embed_model")
+                col_dim = col_meta.get("dimension")
 
-            if col_model and col_model != settings.embed_model:
-                app.state.pin_error = (
-                    f"embedding_model mismatch: Chroma collection '{settings.collection}' was indexed "
-                    f"with '{col_model}' (dim {col_dim}), but API is configured with '{settings.embed_model}'"
-                )
-                log.error("startup check failed: %s", app.state.pin_error)
-            else:
-                log.info(
-                    "embedding-pin verified: collection and API both use %s",
-                    settings.embed_model,
-                )
+                if col_model and col_model != settings.embed_model:
+                    app.state.pin_error = (
+                        f"embedding_model mismatch: Chroma collection '{settings.collection}' was indexed "
+                        f"with '{col_model}' (dim {col_dim}), but API is configured with '{settings.embed_model}'"
+                    )
+                    log.error("startup check failed: %s", app.state.pin_error)
+                else:
+                    log.info(
+                        "embedding-pin verified: collection and API both use %s",
+                        settings.embed_model,
+                    )
         except Exception as exc:
             app.state.pin_error = f"Chroma collection connection error: {exc}"
             log.warning("startup Chroma check warning: %s", exc)

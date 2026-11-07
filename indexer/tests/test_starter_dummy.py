@@ -13,7 +13,9 @@ from pipeline.run import discover
 
 class FakeCollection:
     def __init__(self, name: str, metadata: dict) -> None:
-        self.name, self.metadata, self.rows = name, metadata, {}
+        self.name = name
+        self.metadata = metadata
+        self.rows: dict[str, tuple] = {}
 
     def add(self, ids, documents, embeddings, metadatas) -> None:
         for i, d, e, m in zip(ids, documents, embeddings, metadatas):

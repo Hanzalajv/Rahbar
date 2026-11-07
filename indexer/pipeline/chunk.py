@@ -58,15 +58,17 @@ def _extract_sections(text: str, default_section: str) -> list[tuple[str, str]]:
                 break
 
         match = None if matched_known else SECTION_HEADING_RE.match(line_clean)
-        if matched_known or match:
+        if matched_known:
             if current_lines:
                 sections.append((current_heading, current_lines))
                 current_lines = []
-            if matched_known:
-                current_heading = matched_known
-            else:
-                heading_text = match.group(1) or match.group(2) or match.group(3) or match.group(4) or line_clean
-                current_heading = heading_text.strip("# :").strip()
+            current_heading = matched_known
+        elif match is not None:
+            if current_lines:
+                sections.append((current_heading, current_lines))
+                current_lines = []
+            heading_text = match.group(1) or match.group(2) or match.group(3) or match.group(4) or line_clean
+            current_heading = heading_text.strip("# :").strip()
         else:
             current_lines.append(line)
 
