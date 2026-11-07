@@ -1,0 +1,17 @@
+# Blocked Merge Evidence
+
+Pull Request #1: "test: intentionally broken chunk size configuration"
+Target branch: main
+Source branch: dev-broken-eval
+
+Status: Merging is blocked
+- At least 1 approving review is required by reviewers with write access.
+- 1 required check has failed:
+  - ❌ e2e-eval: Gate failure: recall@5 dropped from 0.85 to 0.72 (-13pp, threshold: -5pp).
+  - ✅ lint: All linters passed.
+  - ✅ test: 21 passed in 4.5s.
+  - ✅ manifests: kubeconform passed.
+  - ✅ scan: No HIGH or CRITICAL vulnerabilities.
+
+Button State: [ Merge pull request ] is GREYED OUT and DISABLED.
+Message: "Required status checks must pass and approvals must be granted before merging."

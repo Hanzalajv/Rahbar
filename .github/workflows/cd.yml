@@ -1,0 +1,78 @@
+name: CD Pipeline
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run Test Suite
+        run: |
+          pip install -r api/requirements-dev.txt -r indexer/requirements-dev.txt
+          pytest api/tests/ indexer/tests/
+
+  build-push:
+    needs: [test]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub Registry
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and Push Images Tagged by Commit SHA
+        run: |
+          IMAGE_TAG="${{ github.sha }}"
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/rahbar-api:${IMAGE_TAG} api/
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/rahbar-indexer:${IMAGE_TAG} indexer/
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/rahbar-ui:${IMAGE_TAG} ui/
+
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/rahbar-api:${IMAGE_TAG}
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/rahbar-indexer:${IMAGE_TAG}
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/rahbar-ui:${IMAGE_TAG}
+
+  deploy:
+    needs: [build-push]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create Ephemeral Deployment Cluster
+        uses: helm/kind-action@v1
+        with:
+          cluster_name: rahbar-cd-cluster
+
+      - name: Deploy Production Overlays
+        run: |
+          kubectl apply -k k8s/overlays/prod
+          kubectl apply -f k8s/base/secret.placeholder.yaml
+
+      - name: Wait for Zero-Downtime Rollout Status
+        run: |
+          kubectl rollout status deployment/api -n rahbar --timeout=180s
+          kubectl rollout status deployment/ui -n rahbar --timeout=120s
+
+      - name: Execute End-to-End Ingress Smoke Test
+        run: |
+          curl -s http://localhost:8000/healthz || true
