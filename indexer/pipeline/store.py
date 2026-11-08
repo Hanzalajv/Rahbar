@@ -27,9 +27,10 @@ def get_client(settings: IndexerSettings) -> Any:
         )
         client.heartbeat()
         return client
-    except Exception:
-        persist_dir = os.environ.get("CHROMA_PERSIST_DIR", "./chroma_data")
-        return chromadb.PersistentClient(path=persist_dir)
+    except Exception as exc:
+        raise RuntimeError(
+            f"Failed to connect to Chroma HTTP service at {settings.chroma_host}:{settings.chroma_port}: {exc}"
+        ) from exc
 
 
 def store(chunks: list[Chunk], vectors: list[list[float]], settings: IndexerSettings, client: Any = None) -> int:

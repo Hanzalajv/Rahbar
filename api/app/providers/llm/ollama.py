@@ -49,7 +49,13 @@ class OllamaProvider:
         self.settings = settings
 
     def _call_api(self, prompt: str) -> str:
-        url = f"{self.settings.ollama_url.rstrip('/')}/api/chat"
+        primary_url = f"{self.settings.ollama_url.rstrip('/')}/api/chat"
+        urls_to_try = [primary_url]
+        if "host.minikube.internal" in primary_url:
+            urls_to_try.append(primary_url.replace("host.minikube.internal", "host.k3d.internal"))
+        elif "host.k3d.internal" in primary_url:
+            urls_to_try.append(primary_url.replace("host.k3d.internal", "host.minikube.internal"))
+
         payload = {
             "model": self.settings.llm_model,
             "messages": [
@@ -60,11 +66,18 @@ class OllamaProvider:
             "options": {"temperature": self.settings.temperature},
             "stream": False,
         }
-        with httpx.Client(timeout=httpx.Timeout(60.0, connect=5.0)) as client:
-            resp = client.post(url, json=payload)
-            resp.raise_for_status()
-            data = resp.json()
-            return data.get("message", {}).get("content", "")
+        last_exc = None
+        with httpx.Client(timeout=httpx.Timeout(180.0, connect=5.0)) as client:
+            for url in urls_to_try:
+                try:
+                    resp = client.post(url, json=payload)
+                    resp.raise_for_status()
+                    data = resp.json()
+                    return data.get("message", {}).get("content", "")
+                except Exception as exc:
+                    last_exc = exc
+                    continue
+        raise last_exc or RuntimeError("All candidate Ollama URLs failed")
 
     def generate(self, question: str, passages: list[Passage]) -> Answer:
         """Generate schema-constrained answer with 1 retry on validation failure and safe fallback."""

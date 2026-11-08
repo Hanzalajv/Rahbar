@@ -19,20 +19,32 @@ def embed_query(text: str, settings: Settings) -> list[float]:
 
     Fails loudly if Ollama is unreachable; never returns synthetic hash vectors.
     """
-    url = f"{settings.ollama_url.rstrip('/')}/api/embed"
+    primary_url = f"{settings.ollama_url.rstrip('/')}/api/embed"
+    urls_to_try = [primary_url]
+    if "host.minikube.internal" in primary_url:
+        urls_to_try.append(primary_url.replace("host.minikube.internal", "host.k3d.internal"))
+    elif "host.k3d.internal" in primary_url:
+        urls_to_try.append(primary_url.replace("host.k3d.internal", "host.minikube.internal"))
+
+    last_exc = None
     try:
         with httpx.Client(timeout=httpx.Timeout(15.0, connect=3.0)) as client:
-            resp = client.post(url, json={"model": settings.embed_model, "input": [text]})
-            resp.raise_for_status()
-            data = resp.json()
-            embeddings = data.get("embeddings") or []
-            if embeddings and len(embeddings[0]) > 0:
-                return embeddings[0]
+            for url in urls_to_try:
+                try:
+                    resp = client.post(url, json={"model": settings.embed_model, "input": [text]})
+                    resp.raise_for_status()
+                    data = resp.json()
+                    embeddings = data.get("embeddings") or []
+                    if embeddings and len(embeddings[0]) > 0:
+                        return embeddings[0]
+                except Exception as exc:
+                    last_exc = exc
+                    continue
             raise RuntimeError(f"Ollama returned empty embedding for model '{settings.embed_model}'")
     except Exception as exc:
         raise RuntimeError(
-            f"Failed to embed query with model '{settings.embed_model}' at {url}: {exc}"
-        ) from exc
+            f"Failed to embed query with model '{settings.embed_model}' at {urls_to_try}: {last_exc or exc}"
+        ) from (last_exc or exc)
 
 
 def _calculate_score(cosine_dist: float) -> float:
@@ -65,9 +77,10 @@ class ChromaRetriever:
                         settings=ChromaSettings(anonymized_telemetry=False),
                     )
                     self.client.heartbeat()
-                except Exception:
-                    persist_dir = os.environ.get("CHROMA_PERSIST_DIR", "./chroma_data")
-                    self.client = chromadb.PersistentClient(path=persist_dir)
+                except Exception as exc:
+                    raise RuntimeError(
+                        f"Failed to connect to Chroma HTTP service at {settings.chroma_host}:{settings.chroma_port}: {exc}"
+                    ) from exc
         self._collection = None
 
     @property

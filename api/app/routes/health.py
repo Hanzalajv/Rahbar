@@ -67,14 +67,31 @@ def readyz(request: Request, response: Response) -> dict[str, object]:
         # Verify embedding model metadata pin
         col_meta = collection.metadata or {}
         col_model = col_meta.get("embed_model")
-        if col_model and col_model != settings.embed_model:
+        if not col_model:
+            response.status_code = 503
+            return {
+                "status": "not_ready",
+                "failed_dependency": "embedding_pin",
+                "error": "Collection metadata is missing 'embed_model' pin",
+            }
+        if col_model != settings.embed_model:
             response.status_code = 503
             return {
                 "status": "not_ready",
                 "failed_dependency": "embedding_pin",
                 "error": f"embedding_model mismatch: collection uses '{col_model}', API configured with '{settings.embed_model}'",
             }
+        col_dim = col_meta.get("dimension")
+        if col_dim is not None and col_dim != 768:
+            response.status_code = 503
+            return {
+                "status": "not_ready",
+                "failed_dependency": "embedding_pin",
+                "error": f"embedding dimension mismatch: collection uses dimension {col_dim}, expected 768",
+            }
         checks["embedding_pin"] = "match"
+        checks["embed_model"] = col_model
+        checks["dimension"] = col_dim
     except Exception as exc:
         response.status_code = 503
         return {"status": "not_ready", "failed_dependency": "chroma", "error": str(exc)}
