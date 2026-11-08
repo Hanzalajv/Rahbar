@@ -48,7 +48,11 @@ class OllamaProvider:
         self.settings = settings
 
     def _call_api(self, prompt: str) -> str:
-        url = f"{self.settings.ollama_url.rstrip('/')}/api/chat"
+        base_urls = [self.settings.ollama_url.rstrip("/")]
+        for candidate in ("http://host.k3d.internal:11434", "http://host.docker.internal:11434", "http://127.0.0.1:11434"):
+            if candidate not in base_urls:
+                base_urls.append(candidate)
+
         payload = {
             "model": self.settings.llm_model,
             "messages": [
@@ -59,11 +63,23 @@ class OllamaProvider:
             "options": {"temperature": self.settings.temperature},
             "stream": False,
         }
-        with httpx.Client(timeout=httpx.Timeout(15.0, connect=2.0)) as client:
-            resp = client.post(url, json=payload)
-            resp.raise_for_status()
-            data = resp.json()
-            return data.get("message", {}).get("content", "")
+
+        last_exc: Exception | None = None
+        for base in base_urls:
+            url = f"{base}/api/chat"
+            try:
+                with httpx.Client(timeout=httpx.Timeout(15.0, connect=2.0)) as client:
+                    resp = client.post(url, json=payload)
+                    resp.raise_for_status()
+                    data = resp.json()
+                    return data.get("message", {}).get("content", "")
+            except Exception as exc:
+                last_exc = exc
+                continue
+
+        if last_exc:
+            raise last_exc
+        raise RuntimeError("No Ollama endpoint reachable")
 
     def generate(self, question: str, passages: list[Passage]) -> Answer:
         """Generate schema-constrained answer with 1 retry on validation failure and safe fallback."""
