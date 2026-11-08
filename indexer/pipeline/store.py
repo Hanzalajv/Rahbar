@@ -38,10 +38,18 @@ def store(chunks: list[Chunk], vectors: list[list[float]], settings: IndexerSett
     if not chunks:
         return 0
 
+    if not vectors or len(vectors) != len(chunks):
+        raise ValueError(
+            f"Vector count ({len(vectors) if vectors else 0}) does not match chunk count ({len(chunks)})"
+        )
+
+    dimension = len(vectors[0])
+    if dimension != 768:
+        raise RuntimeError(f"Vector dimension {dimension} != 768 for model '{settings.embed_model}'")
+
     if client is None:
         client = get_client(settings)
 
-    dimension = len(vectors[0]) if vectors and len(vectors) > 0 else 768
     embed_model = settings.embed_model
 
     collection_metadata = {

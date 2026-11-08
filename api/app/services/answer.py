@@ -22,34 +22,6 @@ def _is_followup(question: str) -> bool:
     return bool(re.search(r"^(and\b|what about|then\b|how about|what if|also\b)", question.strip(), re.I))
 
 
-def _is_unrelated_or_greeting(question: str) -> bool:
-    """Detect casual greetings, chit-chat, and obvious off-topic queries."""
-    q = question.strip().lower()
-    greeting_patterns = [
-        r"^(hi\b|hello\b|hey\b|howdy\b|greetings\b|hola\b|aoa\b|assalam)",
-        r"^how (are|r) (you|u)",
-        r"^how('s| is) it going",
-        r"^what('s| is) up",
-        r"^who (are|r) (you|u)",
-        r"^what can (you|u) do",
-        r"^tell me a (joke|story|poem)",
-        r"^(good morning|good afternoon|good evening|good day)",
-    ]
-    for pattern in greeting_patterns:
-        if re.search(pattern, q):
-            # If the user combined a greeting with an academic query, don't abstain early
-            academic_keywords = [
-                "attendance", "grade", "gpa", "sgpa", "cgpa", "exam", "course", "degree",
-                "probation", "warning", "fee", "tuition", "hostel", "discipline", "fyp",
-                "curriculum", "credit", "semester", "regulations", "policy", "rules", "admission",
-                "instructor", "faculty", "plagiarism", "repeat", "stub"
-            ]
-            if any(kw in q for kw in academic_keywords):
-                return False
-            return True
-    return False
-
-
 def _verify_citations(citations: list[Citation], passages: list[Passage]) -> list[Citation]:
     """Ensure every citation strictly matches a chunk actually retrieved for this request."""
     valid_citations: list[Citation] = []
@@ -75,21 +47,6 @@ def answer_question(
 ) -> AskResponse:
     """Executes the full 8-step production query pipeline."""
     rid = request_id_var.get()
-
-    # 0. Reject pure greetings or off-topic conversational queries immediately
-    if _is_unrelated_or_greeting(question):
-        metrics.ABSTENTIONS.inc()
-        log.info("abstaining: prompt is unrelated or casual greeting", extra={"question": question})
-        return AskResponse(
-            request_id=rid,
-            answer="This query is not related to FAST-NUCES academic regulations or university policies. RAHBAR is designed solely to answer institutional academic questions from the official university corpus.",
-            citations=[],
-            answered_from_context=False,
-            confidence="low",
-            retrieved=[],
-            provider=provider.name,
-        )
-
     cache = get_cache(settings)
 
     # 1. Semantic cache check (skip for follow-up turns or if requested)
@@ -111,7 +68,11 @@ def answer_question(
 
     # 2. Retrieve top-k passages from Chroma
     t_ret_start = time.perf_counter()
-    passages = retriever.retrieve(question, k=settings.top_k)
+    try:
+        passages = retriever.retrieve(question, k=settings.top_k)
+    except Exception as exc:
+        log.error("retrieval failed: %s", exc)
+        passages = []
     metrics.RETRIEVAL_LATENCY.observe(time.perf_counter() - t_ret_start)
 
     # 3. Relevance Floor Check: honest abstention when nothing meets quality threshold

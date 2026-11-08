@@ -49,11 +49,7 @@ class OllamaProvider:
         self.settings = settings
 
     def _call_api(self, prompt: str) -> str:
-        base_urls = [self.settings.ollama_url.rstrip("/")]
-        for candidate in ("http://host.k3d.internal:11434", "http://host.docker.internal:11434", "http://127.0.0.1:11434"):
-            if candidate not in base_urls:
-                base_urls.append(candidate)
-
+        url = f"{self.settings.ollama_url.rstrip('/')}/api/chat"
         payload = {
             "model": self.settings.llm_model,
             "messages": [
@@ -64,23 +60,11 @@ class OllamaProvider:
             "options": {"temperature": self.settings.temperature},
             "stream": False,
         }
-
-        last_exc: Exception | None = None
-        for base in base_urls:
-            url = f"{base}/api/chat"
-            try:
-                with httpx.Client(timeout=httpx.Timeout(15.0, connect=2.0)) as client:
-                    resp = client.post(url, json=payload)
-                    resp.raise_for_status()
-                    data = resp.json()
-                    return data.get("message", {}).get("content", "")
-            except Exception as exc:
-                last_exc = exc
-                continue
-
-        if last_exc:
-            raise last_exc
-        raise RuntimeError("No Ollama endpoint reachable")
+        with httpx.Client(timeout=httpx.Timeout(60.0, connect=5.0)) as client:
+            resp = client.post(url, json=payload)
+            resp.raise_for_status()
+            data = resp.json()
+            return data.get("message", {}).get("content", "")
 
     def generate(self, question: str, passages: list[Passage]) -> Answer:
         """Generate schema-constrained answer with 1 retry on validation failure and safe fallback."""
@@ -95,31 +79,35 @@ class OllamaProvider:
 
         prompt = build_prompt(question, passages)
 
-        # Attempt 1
+        # Attempt 1: Network call
         try:
             raw_text = self._call_api(prompt)
-            return Answer.model_validate_json(raw_text)
-        except (ValidationError, Exception) as err1:
-            log.warning("first generation attempt failed validation: %s; retrying once", err1)
+        except Exception as exc:
+            log.error("Ollama network call failed (%s): %s", type(exc).__name__, exc)
+            return Answer(
+                reasoning=f"Fallback: Ollama API call failed ({type(exc).__name__}).",
+                answer="I am unable to provide a validated answer from the current documents.",
+                citations=[],
+                answered_from_context=False,
+                confidence="low",
+            )
 
-        # Retry once on validation failure
+        # Validate Attempt 1 output
         try:
-            retry_prompt = prompt + "\n\nCRITICAL: Previous response was not valid JSON. You MUST return strictly valid JSON matching the schema."
+            return Answer.model_validate_json(raw_text)
+        except ValidationError as val_err:
+            log.warning("first generation attempt failed schema validation: %s; retrying once", val_err)
+
+        # Retry once strictly on validation failure
+        try:
+            retry_prompt = (
+                prompt
+                + "\n\nCRITICAL: Previous response was not valid JSON. You MUST return strictly valid JSON matching the schema."
+            )
             raw_retry = self._call_api(retry_prompt)
             return Answer.model_validate_json(raw_retry)
-        except (ValidationError, Exception) as err2:
-            log.error("second generation attempt failed: %s; invoking safe fallback", err2)
-
-        # Safe fallback: delegate to deterministic grounded stub generator
-        log.info("Ollama unreachable or unvalidated; invoking grounded stub fallback")
-        try:
-            from .stub import StubProvider
-
-            fallback = StubProvider().generate(question, passages)
-            fallback.reasoning = f"Fallback (Ollama): {fallback.reasoning}"
-            return fallback
-        except Exception as exc:
-            log.error("stub fallback failed: %s", exc)
+        except Exception as exc2:
+            log.error("second generation attempt failed (%s): %s; invoking safe fallback", type(exc2).__name__, exc2)
             return Answer(
                 reasoning="Fallback: Model response could not be validated against the Answer schema after retry.",
                 answer="I am unable to provide a validated answer from the current documents.",

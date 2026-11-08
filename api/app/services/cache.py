@@ -69,7 +69,11 @@ class SemanticCache:
 
     def get(self, question: str) -> CachedAnswer | None:
         """Search cache for a semantic hit exceeding similarity threshold."""
-        query_vec = embed_query(question, self.settings)
+        try:
+            query_vec = embed_query(question, self.settings)
+        except Exception as exc:
+            log.warning("cache lookup skipped (embedding failed): %s", exc)
+            return None
 
         # 1. Search in-memory cache
         best_score = 0.0
@@ -102,7 +106,12 @@ class SemanticCache:
             log.debug("skip_cache: refusing to cache uncertain or uncited answer")
             return
 
-        query_vec = embed_query(question, self.settings)
+        try:
+            query_vec = embed_query(question, self.settings)
+        except Exception as exc:
+            log.warning("cache store skipped (embedding failed): %s", exc)
+            return
+
         refs = [
             RetrievedRef(chunk_id=p.chunk_id, source=p.source, section=p.section, page=p.page, text=p.text, score=p.score).model_dump()
             for p in (retrieved or [])

@@ -41,7 +41,7 @@ class Settings:
 
     # Retrieval and generation
     top_k: int = 5
-    relevance_floor: float = 0.65
+    relevance_floor: float = 0.30
     temperature: float = 0.2
     llm_model: str = "llama3.2:3b"
     ollama_url: str = "http://host.minikube.internal:11434"

@@ -13,7 +13,7 @@ data:
 
   # Retrieval parameters
   TOP_K: "5"
-  RELEVANCE_FLOOR: "0.65"
+  RELEVANCE_FLOOR: "0.30"
 
   # Semantic cache parameters
   CACHE_THRESHOLD: "0.92"
