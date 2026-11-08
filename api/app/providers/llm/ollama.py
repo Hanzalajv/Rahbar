@@ -59,7 +59,7 @@ class OllamaProvider:
             "options": {"temperature": self.settings.temperature},
             "stream": False,
         }
-        with httpx.Client(timeout=httpx.Timeout(45.0, connect=5.0)) as client:
+        with httpx.Client(timeout=httpx.Timeout(15.0, connect=2.0)) as client:
             resp = client.post(url, json=payload)
             resp.raise_for_status()
             data = resp.json()
@@ -93,11 +93,20 @@ class OllamaProvider:
         except (ValidationError, Exception) as err2:
             log.error("second generation attempt failed: %s; invoking safe fallback", err2)
 
-        # Safe canned fallback response: schema-valid, never 500
-        return Answer(
-            reasoning="Fallback: Model response could not be validated against the Answer schema after retry.",
-            answer="I am unable to provide a validated answer from the current documents.",
-            citations=[],
-            answered_from_context=False,
-            confidence="low",
-        )
+        # Safe fallback: delegate to deterministic grounded stub generator
+        log.info("Ollama unreachable or unvalidated; invoking grounded stub fallback")
+        try:
+            from .stub import StubProvider
+
+            fallback = StubProvider().generate(question, passages)
+            fallback.reasoning = f"Fallback (Ollama): {fallback.reasoning}"
+            return fallback
+        except Exception as exc:
+            log.error("stub fallback failed: %s", exc)
+            return Answer(
+                reasoning="Fallback: Model response could not be validated against the Answer schema after retry.",
+                answer="I am unable to provide a validated answer from the current documents.",
+                citations=[],
+                answered_from_context=False,
+                confidence="low",
+            )
