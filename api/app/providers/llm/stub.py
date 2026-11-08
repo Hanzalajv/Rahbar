@@ -38,7 +38,19 @@ class StubProvider:
                 confidence="high",
             )
 
-        # 2. Honest Abstention on topics known to be absent from the academic corpus
+        # 2. Honest Abstention on greetings, chit-chat, or absent topics
+        if re.search(
+            r"^(hi\b|hello\b|hey\b|howdy\b|how (are|r) (you|u)|what('s| is) up|who (are|r) (you|u)|tell me a joke)",
+            q_lower,
+        ):
+            return Answer(
+                reasoning="The prompt is a conversational greeting or unrelated to university academic policies.",
+                answer="This query is not related to FAST-NUCES academic regulations or university policies. RAHBAR is designed solely to answer institutional academic questions from the official university corpus.",
+                citations=[],
+                answered_from_context=False,
+                confidence="low",
+            )
+
         if re.search(r"\b(hostel|curfew|mess charges|room allocation)\b", q_lower):
             return Answer(
                 reasoning="Topic 'hostel regulations' is intentionally absent from the institutional academic corpus.",
@@ -150,7 +162,16 @@ class StubProvider:
                 confidence="high",
             )
 
-        # 4. General Grounded Extraction from top passage
+        # 4. General Grounded Extraction or Abstention
+        if top.source == "stub-handbook.pdf" and "stub" not in q_lower:
+            return Answer(
+                reasoning="The query does not match any official university regulations in the corpus.",
+                answer="This query is not related to FAST-NUCES academic regulations or university policies. RAHBAR is designed solely to answer institutional academic questions from the official university corpus.",
+                citations=[],
+                answered_from_context=False,
+                confidence="low",
+            )
+
         clean_text = " ".join(top.text.split()[:80])
         return Answer(
             reasoning=f"Extracted and grounded from official FAST-NUCES document ({top.source} §{top.section}).",
