@@ -68,7 +68,7 @@ def get_settings() -> Settings:
         chroma_port=_int("CHROMA_PORT", 8000),
         collection=os.environ.get("CHROMA_COLLECTION", "rahbar"),
         top_k=_int("TOP_K", 5),
-        relevance_floor=_float("RELEVANCE_FLOOR", 0.65),
+        relevance_floor=_float("RELEVANCE_FLOOR", 0.30),
         temperature=_float("TEMPERATURE", 0.2),
         llm_model=os.environ.get("LLM_MODEL", "llama3.2:3b"),
         ollama_url=os.environ.get("OLLAMA_URL", "http://host.minikube.internal:11434"),

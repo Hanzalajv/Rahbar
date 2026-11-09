@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import json
 import logging
+import re
 
 import httpx
 from pydantic import ValidationError
@@ -26,20 +28,44 @@ Rules:
 """
 
 
-def build_prompt(question: str, passages: list[Passage]) -> str:
-    """Build grounded prompt with numbered evidence passages delimited as data."""
+def _clean_json_text(text: str) -> str:
+    """Strip markdown formatting or surrounding conversational noise to isolate valid JSON."""
+    text = text.strip()
+    if text.startswith("```json"):
+        text = text[7:]
+    elif text.startswith("```"):
+        text = text[3:]
+    if text.endswith("```"):
+        text = text[:-3]
+    text = text.strip()
+    if not (text.startswith("{") and text.endswith("}")):
+        match = re.search(r"\{.*\}", text, re.DOTALL)
+        if match:
+            text = match.group(0)
+    return text.strip()
+
+
+def build_prompt(question: str, passages: list[Passage], max_passages: int = 2) -> str:
+    """Build grounded prompt using top evidence passages to minimize prompt processing latency on CPU."""
     evidence_blocks: list[str] = []
-    for i, p in enumerate(passages, start=1):
+    for i, p in enumerate(passages[:max_passages], start=1):
+        text = p.text.strip()
+        if len(text) > 900:
+            text = text[:900] + "..."
         evidence_blocks.append(
             f"--- EVIDENCE PASSAGE [{i}] ---\n"
             f"Source: {p.source}\n"
             f"Section: {p.section}\n"
             f"Page: {p.page or 1}\n"
-            f"Content:\n{p.text}\n"
+            f"Content:\n{text}\n"
             f"--- END PASSAGE [{i}] ---"
         )
     evidence_str = "\n\n".join(evidence_blocks)
-    return f"Retrieved Context:\n{evidence_str}\n\nUser Question: {question}"
+    return (
+        f"Retrieved Context:\n{evidence_str}\n\n"
+        f"User Question: {question}\n\n"
+        f"Output strictly valid JSON conforming to the schema with concise answer."
+    )
 
 
 class OllamaProvider:
@@ -51,10 +77,13 @@ class OllamaProvider:
     def _call_api(self, prompt: str) -> str:
         primary_url = f"{self.settings.ollama_url.rstrip('/')}/api/chat"
         urls_to_try = [primary_url]
-        if "host.minikube.internal" in primary_url:
-            urls_to_try.append(primary_url.replace("host.minikube.internal", "host.k3d.internal"))
-        elif "host.k3d.internal" in primary_url:
-            urls_to_try.append(primary_url.replace("host.k3d.internal", "host.minikube.internal"))
+        if any(h in primary_url for h in ("host.k3d.internal", "host.minikube.internal")):
+            for alt in ("172.27.0.1", "172.17.0.1"):
+                alt_url = primary_url
+                for base in ("host.k3d.internal", "host.minikube.internal"):
+                    alt_url = alt_url.replace(base, alt)
+                if alt_url not in urls_to_try:
+                    urls_to_try.append(alt_url)
 
         payload = {
             "model": self.settings.llm_model,
@@ -63,11 +92,17 @@ class OllamaProvider:
                 {"role": "user", "content": prompt},
             ],
             "format": "json",
-            "options": {"temperature": self.settings.temperature},
+            "options": {
+                "temperature": self.settings.temperature,
+                "num_ctx": 1536,
+                "num_predict": 180,
+                "num_thread": 4,
+            },
+            "keep_alive": -1,
             "stream": False,
         }
         last_exc = None
-        with httpx.Client(timeout=httpx.Timeout(180.0, connect=5.0)) as client:
+        with httpx.Client(timeout=httpx.Timeout(60.0, connect=2.0)) as client:
             for url in urls_to_try:
                 try:
                     resp = client.post(url, json=payload)
@@ -95,6 +130,10 @@ class OllamaProvider:
         # Attempt 1: Network call
         try:
             raw_text = self._call_api(prompt)
+            clean_text = _clean_json_text(raw_text)
+            return Answer.model_validate_json(clean_text)
+        except ValidationError as val_err:
+            log.warning("first generation attempt failed schema validation: %s; retrying once", val_err)
         except Exception as exc:
             log.error("Ollama network call failed (%s): %s", type(exc).__name__, exc)
             return Answer(
@@ -105,12 +144,6 @@ class OllamaProvider:
                 confidence="low",
             )
 
-        # Validate Attempt 1 output
-        try:
-            return Answer.model_validate_json(raw_text)
-        except ValidationError as val_err:
-            log.warning("first generation attempt failed schema validation: %s; retrying once", val_err)
-
         # Retry once strictly on validation failure
         try:
             retry_prompt = (
@@ -118,7 +151,8 @@ class OllamaProvider:
                 + "\n\nCRITICAL: Previous response was not valid JSON. You MUST return strictly valid JSON matching the schema."
             )
             raw_retry = self._call_api(retry_prompt)
-            return Answer.model_validate_json(raw_retry)
+            clean_retry = _clean_json_text(raw_retry)
+            return Answer.model_validate_json(clean_retry)
         except Exception as exc2:
             log.error("second generation attempt failed (%s): %s; invoking safe fallback", type(exc2).__name__, exc2)
             return Answer(

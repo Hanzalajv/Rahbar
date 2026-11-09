@@ -24,6 +24,11 @@ spec:
         app.kubernetes.io/component: api
     spec:
       serviceAccountName: rahbar-api-sa
+      hostAliases:
+        - ip: "172.27.0.1"
+          hostnames:
+            - "host.k3d.internal"
+            - "host.minikube.internal"
       terminationGracePeriodSeconds: 30
       securityContext:
         runAsNonRoot: true
@@ -71,12 +76,14 @@ spec:
               path: /healthz
               port: 8000
             periodSeconds: 20
+            timeoutSeconds: 5
             failureThreshold: 3
           readinessProbe:
             httpGet:
               path: /readyz
               port: 8000
             periodSeconds: 10
+            timeoutSeconds: 5
             failureThreshold: 3
           resources:
             requests:

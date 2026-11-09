@@ -44,6 +44,9 @@ A generation service should scale on **in-flight concurrency** or **request queu
 - **Metric**: `http_requests_in_flight` or average queue latency.
 - **Implementation**: Deploying KEDA (Kubernetes Event-driven Autoscaling) or the Prometheus Adapter querying `sum(rate(rahbar_requests_total[1m]))` or active worker concurrency from `/metrics` ([`api/app/routes/metrics.py`](file:///e:/scd2/api/app/routes/metrics.py#L14-L35)).
 
+### Single-Node Cluster Capacity Ceiling
+On a single-node k3d cluster the HPA ceiling is bounded by node capacity; 3 is the tested value, and the manifest keeps `maxReplicas: 8` for the general multi-node production case but documents the single-node ceiling. When running on a laptop k3d environment (total allocatable memory ~3.66 GiB), scaling to 8 replicas (each requesting 512Mi = 4096Mi total) exceeds node allocatable memory, causing newly created pods to enter `Pending` state and CPU exhaustion to trigger node `NodeNotReady` conditions and liveness probe timeouts. Live operation pins `maxReplicas: 3` (`minReplicas: 3`) to match available single-node resources.
+
 ---
 
 ## 4. The Indexer's Peak Memory, Its Limit, the Margin, and the Exit Code When It Is Wrong

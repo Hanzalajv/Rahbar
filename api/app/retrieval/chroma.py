@@ -21,14 +21,17 @@ def embed_query(text: str, settings: Settings) -> list[float]:
     """
     primary_url = f"{settings.ollama_url.rstrip('/')}/api/embed"
     urls_to_try = [primary_url]
-    if "host.minikube.internal" in primary_url:
-        urls_to_try.append(primary_url.replace("host.minikube.internal", "host.k3d.internal"))
-    elif "host.k3d.internal" in primary_url:
-        urls_to_try.append(primary_url.replace("host.k3d.internal", "host.minikube.internal"))
+    if any(h in primary_url for h in ("host.k3d.internal", "host.minikube.internal")):
+        for alt in ("172.27.0.1", "172.17.0.1"):
+            alt_url = primary_url
+            for base in ("host.k3d.internal", "host.minikube.internal"):
+                alt_url = alt_url.replace(base, alt)
+            if alt_url not in urls_to_try:
+                urls_to_try.append(alt_url)
 
     last_exc = None
     try:
-        with httpx.Client(timeout=httpx.Timeout(15.0, connect=3.0)) as client:
+        with httpx.Client(timeout=httpx.Timeout(30.0, connect=2.0)) as client:
             for url in urls_to_try:
                 try:
                     resp = client.post(url, json={"model": settings.embed_model, "input": [text]})
