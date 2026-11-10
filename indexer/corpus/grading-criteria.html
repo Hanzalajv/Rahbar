@@ -1,0 +1,1212 @@
+﻿
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Academic Grading</title>
+    
+    
+    <script type="text/javascript" src="https://code.jquery.com/jquery-latest.min.js"></script>
+    <link rel="stylesheet" href="/Content/libs/bootstrap-3.3.5/css/bootstrap.min.css">
+    <link type="text/css" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,400italic,700,900,300">
+    <link type="text/css" rel="stylesheet" href="/content/font/font-icon/font-awesome-4.4.0/css/font-awesome.css">
+    <link type="text/css" rel="stylesheet" href="/content/font/font-icon/font-svg/css/Glyphter.css">
+    <!-- LIBRARY CSS-->
+    <link type="text/css" rel="stylesheet" href="/content/libs/animate/animate.css">
+    <link type="text/css" rel="stylesheet" href="/content/libs/bootstrap-3.3.5/css/bootstrap.css">
+    <link type="text/css" rel="stylesheet" href="/content/libs/owl-carousel-2.0/assets/owl.carousel.css">
+    <link type="text/css" rel="stylesheet" href="/content/libs/selectbox/css/jquery.selectbox.css">
+    <link type="text/css" rel="stylesheet" href="/content/libs/media-element/build/mediaelementplayer.min.css">
+    <link type="text/css" rel="stylesheet" href="/content/css/color-4.css">
+    <link href="/Content/css/responsive.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.4.2/jquery.fancybox.min.css" />
+    <link href="https://nightly.datatables.net/css/jquery.dataTables.css" rel="stylesheet" type="text/css" />
+    <script src="https://nightly.datatables.net/js/jquery.dataTables.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.4/moment.min.js"></script>
+    <script src="https://cdn.datatables.net/plug-ins/1.10.15/sorting/datetime-moment.js"></script>
+    <link href="/Content/css/style2.css" rel="stylesheet" />
+    <link type="text/css" rel="stylesheet" href="/content/css/slider.css">
+    <!-- STYLE CSS    -->
+    <link rel="shortcut icon" href="/Content/images/favicon.ico">
+    <script src="/content/libs/js-cookie/js.cookie.js"></script>
+    <link href="/Content/libs/lightbox/css/lightbox.css" rel="stylesheet" />
+
+    
+</head>
+
+<body class="sticky-enable">
+    <header>
+        
+<style>
+    .blink {
+        animation: blinker 5s cubic-bezier(0.55, 0.06, 0.68, 0.19) infinite;
+        background-color: #ff980029 !important;
+    }
+
+    @keyframes blinker {
+        50% {
+            opacity: 0;
+        }
+    }
+
+    .ribbon {
+        width: 40px;
+        font-size: 12px;
+        /* padding: 4px; */
+        position: absolute;
+        text-align: center;
+        border-radius: 25px;
+        transform: rotate(20deg);
+        background-color: #ed1313;
+        color: #fff;
+    }
+
+    .menu-item .main-menu {
+        font-size: 1em !important;
+    }
+</style>
+<div class="header-main homepage-01">
+    <div class="" style="padding-left: 50px; padding-right: 50px;">
+        <div class="header-main-wrapper" style="text-align: center;">
+            <div class="navbar-header">
+                <div class="logo pull-left">
+                    <a href="/" class="header-logo">
+                        <img src="/Content/images/NU-logo.jpg" />
+                    </a>
+                </div>
+                <div class="pull-right">
+                    <button type="button" data-toggle="collapse" data-target=".navigation" class="navbar-toggle edugate-navbar"><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button>
+                </div>
+                <div class="logo pull-right">
+                    <a href="/" class="header-logo">
+                        <img src="/Content/images/FAST.png" />
+                    </a>
+                </div>
+            </div>
+
+            <nav class="navigation collapse navbar-collapse ">
+                <ul class="nav-links nav navbar-nav swedugate-menu">
+                                    <li class="menu-item ">
+                                        <a href="/Home" class="main-menu" style="white-space: nowrap; padding: 0px !important">Home</a>
+                                    </li>
+                                    <li class="dropdown menu-item">
+                                        <a href="#" class="main-menu" style="white-space: nowrap; padding: 0px !important">Admissions<i class="fa fa-angle-down arrow-open-dropdown"></i></a>
+                                        <ul class="dropdown-menu edugate-dropdown-menu-1">
+                                                        <li class="menu-item">
+                                                            <a href="/Degree-Programs" class="link-page" style="white-space: nowrap;">Offered Programs</a>
+                                                        </li>
+                                                        <li class="menu-item">
+                                                            <a href="/Admissions/Schedule" class="link-page" style="white-space: nowrap;">Admission Schedule</a>
+                                                        </li>
+                                                        <li class="menu-item">
+                                                            <a href="/Admissions/HowToApply" class="link-page" style="white-space: nowrap;">How To Apply</a>
+                                                        </li>
+                                                        <li class="menu-item">
+                                                            <a href="/Admissions/EligibilityCriteria" class="link-page" style="white-space: nowrap;">Eligibility Criteria</a>
+                                                        </li>
+                                                        <li class="menu-item">
+                                                            <a href="/Admissions/Scholarship" class="link-page" style="white-space: nowrap;">Financial Assistance/Scholarships</a>
+                                                        </li>
+                                                        <li class="menu-item">
+                                                            <a href="/Admissions/TestPattern" class="link-page" style="white-space: nowrap;">Test Pattern</a>
+                                                        </li>
+                                                        <li class="menu-item">
+                                                            <a href="/Admissions/FeeStructure" class="link-page" style="white-space: nowrap;">Fee Structure</a>
+                                                        </li>
+                                                        <li class="menu-item">
+                                                            <a href="/Admissions/Prospectus" class="link-page" style="white-space: nowrap;">Prospectus 2026</a>
+                                                        </li>
+                                                        <li class="menu-item">
+                                                            <a href="/Admissions/FAQ" class="link-page" style="white-space: nowrap;">Frequently Asked Questions</a>
+                                                        </li>
+                                        </ul>
+                                    </li>
+                                    <li class="dropdown menu-item">
+                                        <a href="#" class="main-menu" style="white-space: nowrap; padding: 0px !important">Campuses<i class="fa fa-angle-down arrow-open-dropdown"></i></a>
+                                        <ul class="dropdown-menu edugate-dropdown-menu-1">
+                                                    <li class="dropdown menu-item dropdown-submenu">
+                                                        <a href="#" class="link-page" style="white-space: nowrap;">Chiniot-Faisalabad Campus<i class="fa fa-angle-right arrow-open-dropdown"></i></a>
+                                                        <ul class="dropdown-menu edugate-dropdown-menu-2">
+                                                                    <li class="menu-item">
+                                                                        <a href="http://cfd.nu.edu.pk" class="link-page" style="white-space: nowrap;">Home</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="http://cfd.nu.edu.pk/all-departments" class="link-page" style="white-space: nowrap;">Faculty &amp; Staff</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="/Campus/Chiniot-Faisalabad/PhdSupervisors" class="link-page" style="white-space: nowrap;">PhD Supervisors</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="/Campus/Chiniot-Faisalabad/Events" class="link-page" style="white-space: nowrap;">Events</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="/Campus/Chiniot-Faisalabad/MedalHolders" class="link-page" style="white-space: nowrap;">Medal Holders</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="/Campus/Chiniot-Faisalabad/RectorLists" class="link-page" style="white-space: nowrap;">Rector&#39;s List</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="/Campus/Chiniot-Faisalabad/DeanLists" class="link-page" style="white-space: nowrap;">Dean&#39;s List</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="/Campus/Chiniot-Faisalabad/ScholarshipAwardees" class="link-page" style="white-space: nowrap;">Scholarship Awardees</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="/campus/missionvision/Electrical Engineering" class="link-page" style="white-space: nowrap;">EE Department (Mission Vision)</a>
+                                                                    </li>
+                                                        </ul>
+                                                    </li>
+                                                    <li class="dropdown menu-item dropdown-submenu">
+                                                        <a href="http://isb.nu.edu.pk" class="link-page" style="white-space: nowrap;">Islamabad Campus<i class="fa fa-angle-right arrow-open-dropdown"></i></a>
+                                                        <ul class="dropdown-menu edugate-dropdown-menu-2">
+                                                                    <li class="menu-item">
+                                                                        <a href="http://isb.nu.edu.pk" class="link-page" style="white-space: nowrap;">Home</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="http://isb.nu.edu.pk/Faculty/allfaculty" class="link-page" style="white-space: nowrap;">Faculty &amp; Staff</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="/Campus/Islamabad/PhdSupervisors" class="link-page" style="white-space: nowrap;">PhD Supervisors</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="http://isb.nu.edu.pk/Media/NewsList" class="link-page" style="white-space: nowrap;">Events</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="/Campus/Islamabad/Research" class="link-page" style="white-space: nowrap;">Research</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="/Campus/Islamabad/MedalHolders" class="link-page" style="white-space: nowrap;">Medal Holders</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="/Campus/Islamabad/RectorLists" class="link-page" style="white-space: nowrap;">Rector&#39;s List</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="/Campus/Islamabad/DeanLists" class="link-page" style="white-space: nowrap;">Dean&#39;s List</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="/Campus/Islamabad/ScholarshipAwardees" class="link-page" style="white-space: nowrap;">Scholarship Awardees</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="/campus/missionvision/Electrical Engineering" class="link-page" style="white-space: nowrap;">EE Department (Mission Vision)</a>
+                                                                    </li>
+                                                        </ul>
+                                                    </li>
+                                                    <li class="dropdown menu-item dropdown-submenu">
+                                                        <a href="#" class="link-page" style="white-space: nowrap;">Karachi Campus<i class="fa fa-angle-right arrow-open-dropdown"></i></a>
+                                                        <ul class="dropdown-menu edugate-dropdown-menu-2">
+                                                                    <li class="menu-item">
+                                                                        <a href="http://khi.nu.edu.pk" class="link-page" style="white-space: nowrap;">Home</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="https://khi.nu.edu.pk/Faculty.php" class="link-page" style="white-space: nowrap;">Faculty &amp; Staff</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="/Campus/Karachi/PhdSupervisors" class="link-page" style="white-space: nowrap;">PhD Supervisors</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="http://khi.nu.edu.pk/events.php" class="link-page" style="white-space: nowrap;">Events</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="/Campus/Karachi/Research" class="link-page" style="white-space: nowrap;">Research</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="/Campus/Karachi/MedalHolders" class="link-page" style="white-space: nowrap;">Medal Holders</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="/Campus/Karachi/RectorLists" class="link-page" style="white-space: nowrap;">Rector&#39;s List</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="/Campus/Karachi/DeanLists" class="link-page" style="white-space: nowrap;">Dean&#39;s List</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="/Campus/Karachi/ScholarshipAwardees" class="link-page" style="white-space: nowrap;">Scholarship Awardees</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="/campus/missionvision/Electrical Engineering" class="link-page" style="white-space: nowrap;">EE Department (Mission Vision)</a>
+                                                                    </li>
+                                                        </ul>
+                                                    </li>
+                                                    <li class="dropdown menu-item dropdown-submenu">
+                                                        <a href="#" class="link-page" style="white-space: nowrap;">Lahore Campus<i class="fa fa-angle-right arrow-open-dropdown"></i></a>
+                                                        <ul class="dropdown-menu edugate-dropdown-menu-2">
+                                                                    <li class="menu-item">
+                                                                        <a href="http://lhr.nu.edu.pk" class="link-page" style="white-space: nowrap;">Home</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="http://lhr.nu.edu.pk/faculty/" class="link-page" style="white-space: nowrap;">Faculty &amp; Staff</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="/Campus/Lahore/PhdSupervisors" class="link-page" style="white-space: nowrap;">PhD Supervisors</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="http://lhr.nu.edu.pk/news" class="link-page" style="white-space: nowrap;">Events</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="/Campus/Lahore/Research" class="link-page" style="white-space: nowrap;">Research</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="/Campus/Lahore/MedalHolders" class="link-page" style="white-space: nowrap;">Medal Holders</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="/Campus/Lahore/RectorLists" class="link-page" style="white-space: nowrap;">Rector&#39;s List</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="/Campus/Lahore/DeanLists" class="link-page" style="white-space: nowrap;">Dean&#39;s List</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="/Campus/Lahore/ScholarshipAwardees" class="link-page" style="white-space: nowrap;">Scholarship Awardees</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="/campus/missionvision/Civil Engineering" class="link-page" style="white-space: nowrap;">Civil Engg. Department (Mission Vision)</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="/campus/missionvision/Electrical Engineering" class="link-page" style="white-space: nowrap;">EE Department (Mission Vision)</a>
+                                                                    </li>
+                                                        </ul>
+                                                    </li>
+                                                    <li class="dropdown menu-item dropdown-submenu">
+                                                        <a href="#" class="link-page" style="white-space: nowrap;">Peshawar Campus<i class="fa fa-angle-right arrow-open-dropdown"></i></a>
+                                                        <ul class="dropdown-menu edugate-dropdown-menu-2">
+                                                                    <li class="menu-item">
+                                                                        <a href="http://pwr.nu.edu.pk" class="link-page" style="white-space: nowrap;">Home</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="http://pwr.nu.edu.pk/cs-faculty/" class="link-page" style="white-space: nowrap;">Faculty &amp; Staff</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="/Campus/Peshawar/PhdSupervisors" class="link-page" style="white-space: nowrap;">PhD Supervisors</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="http://pwr.nu.edu.pk/latest-news" class="link-page" style="white-space: nowrap;">Events</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="/Campus/Peshawar/Research" class="link-page" style="white-space: nowrap;">Research</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="/Campus/Peshawar/MedalHolders" class="link-page" style="white-space: nowrap;">Medal Holders</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="/Campus/Peshawar/RectorLists" class="link-page" style="white-space: nowrap;">Rector&#39;s List</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="/Campus/Peshawar/DeanLists" class="link-page" style="white-space: nowrap;">Dean&#39;s List</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="/Campus/Peshawar/ScholarshipAwardees" class="link-page" style="white-space: nowrap;">Scholarship Awardees</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="/campus/missionvision/Electrical Engineering" class="link-page" style="white-space: nowrap;">EE Department (Mission Vision)</a>
+                                                                    </li>
+                                                        </ul>
+                                                    </li>
+                                                    <li class="dropdown menu-item dropdown-submenu">
+                                                        <a href="#" class="link-page" style="white-space: nowrap;">Multan Campus<i class="fa fa-angle-right arrow-open-dropdown"></i></a>
+                                                        <ul class="dropdown-menu edugate-dropdown-menu-2">
+                                                                    <li class="menu-item">
+                                                                        <a href="https://mtn.nu.edu.pk/" class="link-page" style="white-space: nowrap;">Home</a>
+                                                                    </li>
+                                                        </ul>
+                                                    </li>
+                                        </ul>
+                                    </li>
+                                    <li class="dropdown menu-item ">
+                                        <a href="#" class="main-menu" style="white-space: nowrap;padding:0px !important">Students<i class="fa fa-angle-down arrow-open-dropdown"></i></a>
+                                        <ul class="dropdown-menu edugate-dropdown-menu-1">
+                                                        <li class="menu-item">
+                                                            <a href="/Student/dvp" class="link-page" style="white-space: nowrap;">Degree Verification Program</a>
+                                                        </li>
+                                                        <li class="menu-item">
+                                                            <a href="/Student/Calender" class="link-page" style="white-space: nowrap;">Academic Calendar
+</a>
+                                                        </li>
+                                                        <li class="menu-item">
+                                                            <a href="/Student/Conduct" class="link-page" style="white-space: nowrap;">Code of Conduct</a>
+                                                        </li>
+                                                        <li class="menu-item">
+                                                            <a href="/Student/Grading" class="link-page" style="white-space: nowrap;">Grading</a>
+                                                        </li>
+                                                    <li class="dropdown menu-item dropdown-submenu">
+                                                        <a href="#" class="link-page" style="white-space: nowrap;">Student Chapters<i class="fa fa-angle-right arrow-open-dropdown"></i></a>
+                                                        <ul class="dropdown-menu edugate-dropdown-menu-2">
+                                                                    <li class="menu-item">
+                                                                        <a href="http://www.sites.ieee.org/sb-nuces-karachi/" class="link-page" style="white-space: nowrap;">IEEE-NUCES</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="http://www.nuces-acm.org/" class="link-page" style="white-space: nowrap;">NUCES-ACM</a>
+                                                                    </li>
+                                                        </ul>
+                                                    </li>
+                                                    <li class="dropdown menu-item dropdown-submenu">
+                                                        <a href="#" class="link-page" style="white-space: nowrap;">Rules &amp; Regulations<i class="fa fa-angle-right arrow-open-dropdown"></i></a>
+                                                        <ul class="dropdown-menu edugate-dropdown-menu-2">
+                                                                    <li class="menu-item">
+                                                                        <a href="/Student/RulesUndergrad" class="link-page" style="white-space: nowrap;">Bachelor Programs</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="/Student/Rulesphd" class="link-page" style="white-space: nowrap;">PhD Programs</a>
+                                                                    </li>
+                                                        </ul>
+                                                    </li>
+                                                        <li class="menu-item">
+                                                            <a href="http://flexstudent.nu.edu.pk/Login" class="link-page" style="white-space: nowrap;">Flex Student Module</a>
+                                                        </li>
+                                                        <li class="menu-item">
+                                                            <a href="/Student/PhdGraduates" class="link-page" style="white-space: nowrap;">Phd Graduates</a>
+                                                        </li>
+                                                        <li class="menu-item">
+                                                            <a href="/Student/FinancialRules" class="link-page" style="white-space: nowrap;">Financial Assistant/Scholarships</a>
+                                                        </li>
+                                        </ul>
+                                    </li>
+                                    <li class="dropdown menu-item">
+                                        <a href="#" class="main-menu" style="white-space: nowrap; padding: 0px !important">University<i class="fa fa-angle-down arrow-open-dropdown"></i></a>
+                                        <ul class="dropdown-menu edugate-dropdown-menu-1">
+                                                        <li class="menu-item">
+                                                            <a href="/University/History" class="link-page" style="white-space: nowrap;">History</a>
+                                                        </li>
+                                                        <li class="menu-item">
+                                                            <a href="/University/Foundation" class="link-page" style="white-space: nowrap;">Foundation</a>
+                                                        </li>
+                                                        <li class="menu-item">
+                                                            <a href="/University/Chancellor" class="link-page" style="white-space: nowrap;">Chancellor</a>
+                                                        </li>
+                                                        <li class="menu-item">
+                                                            <a href="/vision-and-mission" class="link-page" style="white-space: nowrap;">Vision &amp; Mission Statement</a>
+                                                        </li>
+                                                        <li class="menu-item">
+                                                            <a href="/University/Trustees" class="link-page" style="white-space: nowrap;">Board of Trustees</a>
+                                                        </li>
+                                                        <li class="menu-item">
+                                                            <a href="/University/Governers" class="link-page" style="white-space: nowrap;">Board of Governors</a>
+                                                        </li>
+                                                        <li class="menu-item">
+                                                            <a href="/University/Officers" class="link-page" style="white-space: nowrap;">Officers of the University</a>
+                                                        </li>
+                                                        <li class="menu-item">
+                                                            <a href="/University/Headquarters" class="link-page" style="white-space: nowrap;">Headquarters</a>
+                                                        </li>
+                                                        <li class="menu-item">
+                                                            <a href="/University/PhDFaculty" class="link-page" style="white-space: nowrap;">PhD Faculty</a>
+                                                        </li>
+                                                        <li class="menu-item">
+                                                            <a href="/University/HECSupervisors" class="link-page" style="white-space: nowrap;">Approved PhD Supervisor</a>
+                                                        </li>
+                                                        <li class="menu-item">
+                                                            <a href="/University/ExternalThesisReviewer" class="link-page" style="white-space: nowrap;">PhD Thesis Reviewers</a>
+                                                        </li>
+                                                        <li class="menu-item">
+                                                            <a href="/University/Policies" class="link-page" style="white-space: nowrap;">Policies</a>
+                                                        </li>
+                                        </ul>
+                                    </li>
+                                    <li class="dropdown menu-item">
+                                        <a href="#" class="main-menu" style="white-space: nowrap; padding: 0px !important">Services<i class="fa fa-angle-down arrow-open-dropdown"></i></a>
+                                        <ul class="dropdown-menu edugate-dropdown-menu-1">
+                                                        <li class="menu-item">
+                                                            <a target="_blank" href="/Services/Library" class="link-page" style="white-space: nowrap;">FAST-NU Library</a>
+                                                        </li>
+                                                    <li class="dropdown menu-item dropdown-submenu">
+                                                        <a href="#" class="link-page" style="white-space: nowrap;">Alumni<i class="fa fa-angle-right arrow-open-dropdown"></i></a>
+                                                        <ul class="dropdown-menu edugate-dropdown-menu-2">
+                                                                    <li class="menu-item">
+                                                                        <a href="Http://www.osaf.org.pk" class="link-page" style="white-space: nowrap;">OSAF</a>
+                                                                    </li>
+                                                        </ul>
+                                                    </li>
+                                                        <li class="menu-item">
+                                                            <a target="_blank" href="http://nu.edu.pk/NUJobs" class="link-page" style="white-space: nowrap;">Job Portal</a>
+                                                        </li>
+                                                        <li class="menu-item">
+                                                            <a target="_blank" href="http://mail.nu.edu.pk" class="link-page" style="white-space: nowrap;">NU Mail</a>
+                                                        </li>
+                                                        <li class="menu-item">
+                                                            <a target="_blank" href="http://slate.nu.edu.pk" class="link-page" style="white-space: nowrap;">SLATE-LMS</a>
+                                                        </li>
+                                                        <li class="menu-item">
+                                                            <a target="_blank" href="/Services/PlacementOffice" class="link-page" style="white-space: nowrap;">Career Services Office</a>
+                                                        </li>
+                                                        <li class="menu-item">
+                                                            <a target="_blank" href="/Services/PIO" class="link-page" style="white-space: nowrap;">Public Information Officer</a>
+                                                        </li>
+                                                        <li class="menu-item">
+                                                            <a target="_blank" href="/Downloads" class="link-page" style="white-space: nowrap;">Downloads</a>
+                                                        </li>
+                                        </ul>
+                                    </li>
+                                    <li class="dropdown menu-item">
+                                        <a href="#" class="main-menu" style="white-space: nowrap; padding: 0px !important">ORIC<i class="fa fa-angle-down arrow-open-dropdown"></i></a>
+                                        <ul class="dropdown-menu edugate-dropdown-menu-1">
+                                                        <li class="menu-item">
+                                                            <a href="/Oric" class="link-page" style="white-space: nowrap;">Home</a>
+                                                        </li>
+                                                        <li class="menu-item">
+
+                                                            <a href="/Oric/UniversityResearchProfile" class="link-page blink" style="white-space: nowrap;">university research profile  <span class="ribbon ">New</span> </a>
+                                                        </li>
+                                                    <li class="dropdown menu-item dropdown-submenu">
+                                                        <a href="#" class="link-page" style="white-space: nowrap;">Research funded projects<i class="fa fa-angle-right arrow-open-dropdown"></i></a>
+                                                        <ul class="dropdown-menu edugate-dropdown-menu-2">
+                                                                    <li class="menu-item">
+                                                                        <a href="/Oric/FundingOppertunities" class="link-page" style="white-space: nowrap;">Funding Opportunities</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="/Oric/FundedProjects" class="link-page" style="white-space: nowrap;">Funded Projects</a>
+                                                                    </li>
+                                                        </ul>
+                                                    </li>
+                                                    <li class="dropdown menu-item dropdown-submenu">
+                                                        <a href="#" class="link-page" style="white-space: nowrap;">Innovation &amp; Commercialization<i class="fa fa-angle-right arrow-open-dropdown"></i></a>
+                                                        <ul class="dropdown-menu edugate-dropdown-menu-2">
+                                                                    <li class="menu-item">
+                                                                        <a href="#" class="link-page" style="white-space: nowrap;">Consultancy projects</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="/Oric/IncubationFacilities" class="link-page" style="white-space: nowrap;">Incubation Facilities</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="/Oric/Entreprenures" class="link-page" style="white-space: nowrap;">Entrepreneurs</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="/Oric/Patent" class="link-page" style="white-space: nowrap;">Patent</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="/Oric/OricResearchLabs" class="link-page" style="white-space: nowrap;">Research Labs</a>
+                                                                    </li>
+                                                        </ul>
+                                                    </li>
+                                                    <li class="dropdown menu-item dropdown-submenu">
+                                                        <a href="#" class="link-page" style="white-space: nowrap;">Capacity Building<i class="fa fa-angle-right arrow-open-dropdown"></i></a>
+                                                        <ul class="dropdown-menu edugate-dropdown-menu-2">
+                                                                    <li class="menu-item">
+                                                                        <a href="/Oric/CapacityBuilding" class="link-page" style="white-space: nowrap;">Conference/Seminar</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="/Oric/TravelGrants" class="link-page" style="white-space: nowrap;">Travel Grants</a>
+                                                                    </li>
+                                                        </ul>
+                                                    </li>
+                                                        <li class="menu-item">
+                                                            <a href="/Oric/Policies" class="link-page" style="white-space: nowrap;">Policies</a>
+                                                        </li>
+                                                        <li class="menu-item">
+                                                            <a href="/Oric/MoUs" class="link-page" style="white-space: nowrap;">MoUs</a>
+                                                        </li>
+                                                        <li class="menu-item">
+                                                            <a href="/Oric/Photogallery" class="link-page" style="white-space: nowrap;">Photo Gallery</a>
+                                                        </li>
+                                                        <li class="menu-item">
+                                                            <a href="/Oric/Annoucements" class="link-page" style="white-space: nowrap;">Announcements</a>
+                                                        </li>
+                                                        <li class="menu-item">
+                                                            <a href="/Oric/Scholarship" class="link-page" style="white-space: nowrap;">Scholarships</a>
+                                                        </li>
+                                                    <li class="dropdown menu-item dropdown-submenu">
+                                                        <a href="#" class="link-page" style="white-space: nowrap;">Downloads<i class="fa fa-angle-right arrow-open-dropdown"></i></a>
+                                                        <ul class="dropdown-menu edugate-dropdown-menu-2">
+                                                                    <li class="menu-item">
+                                                                        <a href="/Oric/GrantAppForm/Research" class="link-page" style="white-space: nowrap;">Forms</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="/Oric/ResearchBooklet/PublicationsBooklet" class="link-page" style="white-space: nowrap;">Research Booklets</a>
+                                                                    </li>
+                                                        </ul>
+                                                    </li>
+                                                        <li class="menu-item">
+                                                            <a href="/Oric/Team" class="link-page" style="white-space: nowrap;">Team</a>
+                                                        </li>
+                                        </ul>
+                                    </li>
+                                    <li class="dropdown menu-item">
+                                        <a href="#" class="main-menu" style="white-space: nowrap; padding: 0px !important">Executive Education<i class="fa fa-angle-down arrow-open-dropdown"></i></a>
+                                        <ul class="dropdown-menu edugate-dropdown-menu-1">
+                                                        <li class="menu-item">
+                                                            <a href="/CoEE/index" class="link-page" style="white-space: nowrap;">CoEE Home</a>
+                                                        </li>
+                                                        <li class="menu-item">
+                                                            <a href="/CoEE/TDevProg" class="link-page" style="white-space: nowrap;">Training &amp; development programs</a>
+                                                        </li>
+                                                    <li class="dropdown menu-item dropdown-submenu">
+                                                        <a href="#" class="link-page" style="white-space: nowrap;">FAST Practitioner Certification Programs<i class="fa fa-angle-right arrow-open-dropdown"></i></a>
+                                                        <ul class="dropdown-menu edugate-dropdown-menu-2">
+                                                                    <li class="menu-item">
+                                                                        <a href="/CoEE/fintech" class="link-page" style="white-space: nowrap;">Certified Fintech Practitioner Program-FAST&#174;CFP</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="#" class="link-page" style="white-space: nowrap;">People Analytics Certified Practitioner-FAST&#174;PACP</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="#" class="link-page" style="white-space: nowrap;">Certified Entrepreneur in Practice-FAST&#174;CEiP </a>
+                                                                    </li>
+                                                        </ul>
+                                                    </li>
+                                        </ul>
+                                    </li>
+                                    <li class="dropdown menu-item">
+                                        <a href="#" class="main-menu" style="white-space: nowrap; padding: 0px !important">International<i class="fa fa-angle-down arrow-open-dropdown"></i></a>
+                                        <ul class="dropdown-menu edugate-dropdown-menu-1">
+                                                        <li class="menu-item">
+                                                            <a href="/international/Overview" class="link-page" style="white-space: nowrap;">Overview</a>
+                                                        </li>
+                                                        <li class="menu-item">
+                                                            <a href="/international/WhyFast" class="link-page" style="white-space: nowrap;">Why Apply to Fast</a>
+                                                        </li>
+                                                        <li class="menu-item">
+                                                            <a href="/international/IOEApplyInstructions" class="link-page" style="white-space: nowrap;">How to Apply</a>
+                                                        </li>
+                                                        <li class="menu-item">
+                                                            <a href="https://www.nu.edu.pk/Admissions/Prospectus" class="link-page" style="white-space: nowrap;">Downloadable Prospectus</a>
+                                                        </li>
+                                                        <li class="menu-item">
+                                                            <a href="/international/Scholarship" class="link-page" style="white-space: nowrap;">Scholarships</a>
+                                                        </li>
+                                                        <li class="menu-item">
+                                                            <a href="/international/Activities" class="link-page" style="white-space: nowrap;">Events and Activities</a>
+                                                        </li>
+                                                        <li class="menu-item">
+                                                            <a href="/international/Opportunities" class="link-page" style="white-space: nowrap;">Opportunities Abroad</a>
+                                                        </li>
+                                                        <li class="menu-item">
+                                                            <a href="/international/Achievements" class="link-page" style="white-space: nowrap;">Achievements and Collaboration</a>
+                                                        </li>
+                                                        <li class="menu-item">
+                                                            <a href="/international/InternationalReach" class="link-page" style="white-space: nowrap;">Expanding International Reach</a>
+                                                        </li>
+                                                    <li class="dropdown menu-item dropdown-submenu">
+                                                        <a href="#" class="link-page" style="white-space: nowrap;">International Education Office<i class="fa fa-angle-right arrow-open-dropdown"></i></a>
+                                                        <ul class="dropdown-menu edugate-dropdown-menu-2">
+                                                                    <li class="menu-item">
+                                                                        <a href="/international/IOECoreFunctions" class="link-page" style="white-space: nowrap;">Core Functions</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="/international/IOECoreFunctionsOverview" class="link-page" style="white-space: nowrap;">Core Functions Overview</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="/international/IOETeamMembers" class="link-page" style="white-space: nowrap;">Team</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="/international/IOEMission" class="link-page" style="white-space: nowrap;">Mission</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="/international/IOEVision" class="link-page" style="white-space: nowrap;">Vision</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="/international/IOEContactUs" class="link-page" style="white-space: nowrap;">Contact Us</a>
+                                                                    </li>
+                                                        </ul>
+                                                    </li>
+                                        </ul>
+                                    </li>
+                                    <li class="dropdown menu-item">
+                                        <a href="#" class="main-menu" style="white-space: nowrap; padding: 0px !important">IQAE<i class="fa fa-angle-down arrow-open-dropdown"></i></a>
+                                        <ul class="dropdown-menu edugate-dropdown-menu-1">
+                                                        <li class="menu-item">
+                                                            <a href="/IQAE" class="link-page" style="white-space: nowrap;">Home</a>
+                                                        </li>
+                                                        <li class="menu-item">
+                                                            <a href="/IQAE/Team" class="link-page" style="white-space: nowrap;">Team</a>
+                                                        </li>
+                                                        <li class="menu-item">
+                                                            <a href="/IQAE/Accreditation" class="link-page" style="white-space: nowrap;">Accreditation</a>
+                                                        </li>
+                                                        <li class="menu-item">
+                                                            <a href="/IQAE/TrainingActivities" class="link-page" style="white-space: nowrap;">Activities and Training</a>
+                                                        </li>
+                                                        <li class="menu-item">
+                                                            <a href="/IQAE/Achievement" class="link-page" style="white-space: nowrap;">Achievement and Newsletter</a>
+                                                        </li>
+                                                    <li class="dropdown menu-item dropdown-submenu">
+                                                        <a href="#" class="link-page" style="white-space: nowrap;">Self Assessment<i class="fa fa-angle-right arrow-open-dropdown"></i></a>
+                                                        <ul class="dropdown-menu edugate-dropdown-menu-2">
+                                                                    <li class="menu-item">
+                                                                        <a href="/IQAE/Evaluators" class="link-page" style="white-space: nowrap;">Team</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="/IQAE/SelfAssesment" class="link-page" style="white-space: nowrap;">Status</a>
+                                                                    </li>
+                                                        </ul>
+                                                    </li>
+                                                    <li class="dropdown menu-item dropdown-submenu">
+                                                        <a href="#" class="link-page" style="white-space: nowrap;">Capacity Building<i class="fa fa-angle-right arrow-open-dropdown"></i></a>
+                                                        <ul class="dropdown-menu edugate-dropdown-menu-2">
+                                                                    <li class="menu-item">
+                                                                        <a href="/IQAE/Contribution" class="link-page" style="white-space: nowrap;">Contribution</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="/IQAE/Participation" class="link-page" style="white-space: nowrap;">Participation</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="/IQAE/FacultyTraining" class="link-page" style="white-space: nowrap;">Faculty Training</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="/IQAE/Meetings" class="link-page" style="white-space: nowrap;">IQAE Meetings</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="/IQAE/AnnualCalendar" class="link-page" style="white-space: nowrap;">Annual Activity Calendar</a>
+                                                                    </li>
+                                                                    <li class="menu-item">
+                                                                        <a href="/IQAE/BuildingCalendar" class="link-page" style="white-space: nowrap;">Capacity Building Calendar</a>
+                                                                    </li>
+                                                        </ul>
+                                                    </li>
+                                                        <li class="menu-item">
+                                                            <a href="/IQAE/Publications" class="link-page" style="white-space: nowrap;">Publications</a>
+                                                        </li>
+                                                        <li class="menu-item">
+                                                            <a href="/IQAE/PhotoGallery" class="link-page" style="white-space: nowrap;">Photo Gallery</a>
+                                                        </li>
+                                                        <li class="menu-item">
+                                                            <a href="/IQAE/SSAPI" class="link-page" style="white-space: nowrap;">SSAPI</a>
+                                                        </li>
+                                                        <li class="menu-item">
+                                                            <a href="/IQAE/Downloads" class="link-page" style="white-space: nowrap;">Downloads</a>
+                                                        </li>
+                                                        <li class="menu-item">
+                                                            <a href="/University/Membership" class="link-page" style="white-space: nowrap;">NU Membership</a>
+                                                        </li>
+                                        </ul>
+                                    </li>
+                                    <li class="menu-item ">
+                                        <a href="/Career" class="main-menu" style="white-space: nowrap; padding: 0px !important">Career</a>
+                                    </li>
+                                    <li class="menu-item ">
+                                        <a href="/home/ContactUs" class="main-menu" style="white-space: nowrap; padding: 0px !important">Contact Us</a>
+                                    </li>
+
+                    <li class="menu-item">
+                        <div class="button-search"><p class="main-menu"><i class="fa fa-search"></i></p></div>
+                        <div class="nav-search hide">
+                            <gcse:search></gcse:search>
+                        </div>
+                    </li>
+
+
+                </ul>
+                
+            </nav>
+        </div>
+    </div>
+</div>
+
+    </header>
+
+    <div id="wrapper-content" style=" margin-top: 6px;">
+        <!-- PAGE WRAPPER-->
+        <div id="page-wrapper" style="overflow: auto;">
+            <!-- MAIN CONTENT-->
+            <div class="main-content">
+                <!-- CONTENT-->
+                <div class="content">
+                    
+
+<div class="section background-opacity page-title set-height-top" style="background-image: url('../../Content/images/PageBanners/Grading.jpg');">
+    <div class="container">
+        <div class="page-title-wrapper">
+            <!--.page-title-content-->
+            <h2 class="captions">Academic Grading</h2>
+            <ol class="breadcrumb">
+                <li> <a href="/">Home</a></li>
+                    <li>  <a href="/Student">Student</a></li>
+                                    <li>Academic Grading</li>
+            </ol>
+        </div>
+    </div>
+</div>
+<br />
+<div class="section">
+    <div class="container">
+        <div class="alert alert-info">
+            <p class="text-justify">The performance of students is assessed during the semester through mid term tests, assignments, quizzes, case studies or any other method considered appropriate by the course instructor and the University, This shall be communicated to the students at the start of a course. For almost all courses, the semester work will contribute 50% towards the final grade, while the final examination will contribute the remaining 50% of the total marks. A letter grade will be awarded to each student based on his/her overall academic performance in a course.</p>
+        </div>
+        <div class="group-title-index">
+            <h2 class="center-title underline">Description of Grades</h2>
+        </div>
+        <p class="text-justify">The Grade Point Average calculation ensures a continuous scale for the respective grades. The grade issued by the University will be final. Two types of averages will be computed for the grades obtained by each student, the Semester Grade Point Average (SGPA) and the Cumulative Grade Point Average (CGPA). SGPA is the weighted average of grade points earned in a semester. The weights are taken as the ratio of course credits to the total credits taken by the student in the semester.</p>
+        <p class="text-justify">SGPA is the weighted average of grade points earned in a semester. The weights are taken as the ratio of course credits to the total credits taken by the student in the semester.</p>
+        <p class="text-justify">CGPA is the weighted average of all the courses taken so far. For repeat courses, only the most recent grade points are used, even if they are less than the earlier attempts.</p>
+        <p>The following points need to be noted:</p>
+        <ul>
+            <li>"W" will appear as a grade in the transcript like any other grade.</li>
+            <li>"I" will appear as a temporary grade in the transcript subject to change to the grade awarded. Grade “I” shall automatically convert to an “F” grade before the end of the next semester.</li>
+        </ul>
+        <p class="text-justify">Repeat courses will be indicated on the transcript together with the repeat count.</p>
+        <p class="text-justify">"S" or "U" is awarded for PhD Thesis work only and is not considered in CGPA calculation.</p>
+
+        <div class="group-title-index">
+            <h2 class="center-title underline">Letter Code Interpretation</h2>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <p class="text-center"><strong>Letter grades for BBA & BS programs</strong></p>
+                <table class="edu-table-responsive table-bordered table-striped table-condensed">
+                    <thead class="table-header">
+                        <tr class="heading-table">
+                            <th><strong>Grade</strong></th>
+                            <th><strong>Points</strong></th>
+                            <th><strong>Interpretation</strong></th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-body">
+                        <tr>
+                            <td class="text-center">A+</td>
+                            <td class="text-center">4.00</td>
+                            <td>Excellent</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">A</td>
+                            <td class="text-center">4.00</td>
+                            <td>Excellent</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">A-</td>
+                            <td class="text-center">3.67</td>
+                            <td>Very Good</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">B+</td>
+                            <td class="text-center">3.33</td>
+                            <td>Very Good</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">B</td>
+                            <td class="text-center">3.00</td>
+                            <td>Good</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">B-</td>
+                            <td class="text-center">2.67</td>
+                            <td>Average</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">C+</td>
+                            <td class="text-center">2.33</td>
+                            <td>Below Average</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">C</td>
+                            <td class="text-center">2.00</td>
+                            <td>Adequate</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">C-</td>
+                            <td class="text-center">1.67</td>
+                            <td>Pass</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">D+</td>
+                            <td class="text-center">1.33</td>
+                            <td>Pass</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">D</td>
+                            <td class="text-center">1.00</td>
+                            <td>Pass</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-md-6">
+                <p class="text-center"><strong>Letter grades for MBA & MS programs</strong></p>
+                <table class="edu-table-responsive table-bordered table-striped table-condensed">
+                    <thead class="table-header">
+                        <tr class="heading-table">
+                            <th><strong>Grade</strong></th>
+                            <th><strong>Points</strong></th>
+                            <th><strong>Interpretation</strong></th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-body">
+                        <tr>
+                            <td class="text-center">A+</td>
+                            <td class="text-center">4.00</td>
+                            <td>Excellent</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">A</td>
+                            <td class="text-center">4.00</td>
+                            <td>Excellent</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">A-</td>
+                            <td class="text-center">3.67</td>
+                            <td>Very Good</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">B+</td>
+                            <td class="text-center">3.33</td>
+                            <td>Good</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">B</td>
+                            <td class="text-center">3.00</td>
+                            <td>Average</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">B-</td>
+                            <td class="text-center">2.67</td>
+                            <td>Below Average</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">C+</td>
+                            <td class="text-center">2.33</td>
+                            <td>Adequate</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">C</td>
+                            <td class="text-center">2.00</td>
+                            <td>Pass</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <p class="text-center"><strong>Letter grades for PhD programs</strong></p>
+                <table class="edu-table-responsive table-bordered table-striped table-condensed">
+                    <thead class="table-header">
+                        <tr class="heading-table">
+                            <th><strong>Grade</strong></th>
+                            <th><strong>Points</strong></th>
+                            <th><strong>Interpretation</strong></th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-body">
+                        <tr>
+                            <td class="text-center">A+</td>
+                            <td class="text-center">4.00</td>
+                            <td>Excellent</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">A</td>
+                            <td class="text-center">4.00</td>
+                            <td>Excellent</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">A-</td>
+                            <td class="text-center">3.67</td>
+                            <td>Very Good</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">B+</td>
+                            <td class="text-center">3.33</td>
+                            <td>Good</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">B</td>
+                            <td class="text-center">3.00</td>
+                            <td>Average</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">B-</td>
+                            <td class="text-center">2.67</td>
+                            <td>Below Average</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-md-6">
+                <p class="text-center">The Following grades are common for all degree programs:</p>
+                <table class="edu-table-responsive table-bordered table-striped table-condensed">
+                    <thead class="table-header">
+                        <tr class="heading-table">
+                            <th><strong>Grade</strong></th>
+                            <th><strong>Points</strong></th>
+                            <th><strong>Interpretation</strong></th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-body">
+                        <tr>
+                            <td class="text-center">CR</td>
+                            <td class="text-center">-</td>
+                            <td>Continuing Research</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">F</td>
+                            <td class="text-center">0.00</td>
+                            <td>Fail</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">FA</td>
+                            <td class="text-center">0.00</td>
+                            <td>Faill (Attendance Shortage)</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">I</td>
+                            <td class="text-center">-</td>
+                            <td>Incomplete</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">W</td>
+                            <td class="text-center">-</td>
+                            <td>Withdrawn</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="text-center">Grades CR, I and W are not used in computing SGPA or the CGPA.</p>
+        </div>
+        <div class="group-title-index">
+            <h2 class="center-title underline">Warning/Probation</h2>
+        </div>
+        <div class="row">
+
+            <div class="col-md-7">
+                <ol>
+                    <li class="text-justify">At the end of every semester (including the first semester and summer semesters), warning is issued provided the CGPA of a student is less than the minimum required for the degree program.</li>
+                    <li class="text-justify">A student with a warning cannot register in a subsequent semester without approval of the relevant Head of Department or any other senior faculty nominated by him.</li>
+                    <li class="text-justify">After each semester (including the summer or the first semester), if the CGPA of a student is less than the required minimum, the Warning Count increases by one.</li>
+                    <li class="text-justify">If Warning Count becomes three, the admission of student at the University is closed.</li>
+                    <li class="text-justify">If the CGPA equals or exceeds the required minimum, the Warning Count becomes zero.</li>
+                </ol>
+            </div>
+            <div class="col-md-5">
+                <table class="edu-table-responsive table-bordered table-striped table-condensed">
+                    <thead class="table-header">
+                        <tr class="heading-table">
+                            <th>Programs</th>
+                            <th><strong>Minimum CGPA required to avoid Warning</strong></th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-body">
+                        <tr>
+                            <td>BBA/BS</td>
+                            <td class="text-center">2.0</td>
+                        </tr>
+                        <tr>
+                            <td>MBA/MS</td>
+                            <td class="text-center">2.5</td>
+                        </tr>
+                        <tr>
+                            <td>PhD</td>
+                            <td class="text-center">3.0</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+
+                <p>The admission will be cancelled <strong>automatically</strong> after completion of maximum duration allowed to earn a degree.</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="group-title-index">
+                    <h2 class="center-title underline">Repeating a Course</h2>
+                </div>
+
+                <p class="text-justify">A student can repeat a course if that course has not been passed or the student desires to improve his/her grade. A student must repeat all failed courses. Students under warning must repeat such passed courses, in which their GPA is less than the minimum CGPA required for their degree.</p>
+                <p class="text-justify">For example, MS students under warning (CGPA less than 2.50) must repeat courses in which their GPA is less than 2.50 (i.e. C or C- grade).</p>
+                
+            </div>
+            <div class="col-md-6">
+
+                <div class="group-title-index">
+                    <h2 class="center-title underline">Incomplete Course</h2>
+                </div>
+
+                <p class="text-justify">A student may request an extension in the final examination for genuine reasons subject to the following.</p>
+                <ol>
+                    <li class="text-justify">An "I" grade will be given for the affected course provided he/she has satisfactorily met all other requirements for the course except the final examination.</li>
+                    <li class="text-justify">The "I" grade will be converted to appropriate grade before the end of next semester.</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+                    
+                    
+                    
+                    
+                </div>
+            </div>
+        </div>
+        <!-- BUTTON BACK TO TOP-->
+        <div id="back-top"><a href="#top"><i class="fa fa-angle-double-up"></i></a></div>
+    </div>
+    <footer id="footer">
+        <div class="footer-main">
+            <div class="container">
+                <div class="footer-main-wrapper">
+                    <div class="row">
+                        <div class="col-md-4 col-sm-6 col-xs-12 sd380">
+                            <div class="edugate-widget widget">
+                                <div class="title-widget"><i class="fa fa-phone"></i>Contact</div>
+                                <div class="content-widget">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <img style="max-width: 88%" class="img-responsive" src="/Content/images/Footer-Logo.png" />
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="info-list">
+                                            <ul class="col-md-6 col-sm-6 list-unstyled">
+                                                
+                                                
+                                                <li><i class="fa fa-phone"></i><a href="#">Contact:</a></li>
+                                                <li><a class="padding-left-15" href="tel:111128128">111-128-128</a></li>
+                                                <li class="socials">
+                                                    <a class="facebook" href="https://www.facebook.com/FastUniversityOfficial/"><i class="fa fa-facebook"></i></a>
+                                                    <a class="twitter" href="https://www.twitter.com/FastNuOfficial"><i class="fa fa-twitter"></i></a>
+                                                    <a class="insta" href="#"><i class="fa fa-instagram"></i></a>
+                                                    <a class="youtube" href="https://www.youtube.com/channel/UC0s-RmNrTAizAAJoX7z5e2w"><i class="fa fa-youtube"></i></a>
+                                                </li>
+                                            </ul>
+                                            <ul class="col-md-6 col-sm-6 list-unstyled">
+                                                <li><i class="fa fa-map-marker"></i><a href="#">Location:</a></li>
+                                                <li>
+                                                    <p class="padding-left-15">FAST-House</p>
+                                                    <p class="padding-left-15">Rohtas Road, G-9/4</p>
+                                                    <p class="padding-left-15">Islamabad - 44000</p>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-5 col-sm-12 col-xs-12">
+                            <div class="useful-link-widget widget">
+                                <div class="title-widget"><i class="fa fa-link"></i>USEFUL LINKS</div>
+                                <div class="content-widget">
+                                    <div class="useful-link-list">
+                                        <div class="row">
+                                            <div class="col-md-6 col-sm-6 col-xs-6">
+                                                <ul class="list-unstyled">
+                                                    <li><i class="fa fa-angle-right"></i><a href="/Degree-Programs">Programs</a></li>
+                                                    <li><i class="fa fa-angle-right"></i><a target="_blank" href="http://www.peef.org.pk">PEEF</a></li>
+                                                    <li><i class="fa fa-angle-right"></i><a target="_blank" href="http://mail.nu.edu.pk">NU Mail</a></li>
+                                                    <li><i class="fa fa-angle-right"></i><a href="/jobs">Careers</a></li>
+                                                    
+                                                    <li><i class="fa fa-angle-right"></i><a target="_blank" href="http://www.osaf.org.pk/">OSAF</a></li>
+                                                </ul>
+                                            </div>
+                                            <div class="col-md-6 col-sm-6 col-xs-6">
+                                                <ul class="list-unstyled">
+                                                    <li><i class="fa fa-angle-right"></i><a href="/verification">Degree Verification</a></li>
+                                                    <li><i class="fa fa-angle-right"></i><a target="_blank" href="http://www.slate.nu.edu.pk/portal">SLATE-LMS</a></li>
+                                                    <li><i class="fa fa-angle-right"></i><a href="/ORIC">ORIC</a></li>
+                                                    <li><i class="fa fa-angle-right"></i><a href="/IQAE">IQAE</a></li>
+                                                    <li><i class="fa fa-angle-right"></i><a href="/Home/ContactUs">Contact Us</a></li>
+                                                    <li><i class="fa fa-angle-right"></i><a target="_blank" href="https://nu.insigniails.com/Library/Home">FAST-NU Library</a></li>
+                                                    
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-12 col-xs-12">
+                            <div class="useful-link-widget widget">
+                                <div class="content-widget">
+                                    <div class="useful-link-list">
+                                        <div class="title-widget"><i class="fa fa-university"></i>Campuses</div>
+                                        <ul class="list-unstyled">
+                                            
+
+                                            <li><i class="fa fa-angle-right"></i><a href="http://cfd.nu.edu.pk" target="_blank">Chiniot-Faisalabad Campus</a></li>
+                                            <li><i class="fa fa-angle-right"></i><a href="http://isb.nu.edu.pk" target="_blank">Islamabad Campus</a></li>
+                                            <li><i class="fa fa-angle-right"></i><a href="http://khi.nu.edu.pk" target="_blank">Karachi Campus</a></li>
+                                            <li><i class="fa fa-angle-right"></i><a href="http://lhr.nu.edu.pk" target="_blank">Lahore Campus</a></li>
+                                            <li><i class="fa fa-angle-right"></i><a href="https://nu.edu.pk/MultanCampus/Index" target="_blank">Multan Campus</a></li>
+                                            <li><i class="fa fa-angle-right"></i><a href="http://pwr.nu.edu.pk" target="_blank">Peshawar Campus</a></li>
+
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            
+
+                        </div>
+                    </div>
+                    <div class="hyperlink">
+                        <div class="text-center">Copyright © 2026 , NUCES. All Rights Reserved.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+
+    <script src="/content/libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+    <script src="/content/libs/smooth-scroll/jquery-smoothscroll.js"></script>
+    <script src="/content/libs/owl-carousel-2.0/owl.carousel.min.js"></script>
+    <script src="/content/libs/appear/jquery.appear.js"></script>
+    <script src="/content/libs/count-to/jquery.countTo.js"></script>
+    <script src="/content/libs/wow-js/wow.min.js"></script>
+    <script src="/content/libs/selectbox/js/jquery.selectbox-0.2.min.js"></script>
+
+    <!-- MAIN JS-->
+    <script src="/content/js/main.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.4.2/jquery.fancybox.min.js"></script>
+    <!-- LOADING SCRIPTS FOR PAGE-->
+    <script src="/content/libs/isotope/isotope.pkgd.min.js"></script>
+    <script src="/content/libs/isotope/fit-columns.js"></script>
+    <script src="/content/js/pages/homepage.js"></script>
+    <script src="/Content/js/Slider.js"></script>
+    <script src="/Content/js/pages/gallery.js"></script>
+
+    
+    <script>
+        (function () {
+            var cx = '015328709569384755765:7shekvyfku4';
+            var gcse = document.createElement('script');
+            gcse.type = 'text/javascript';
+            gcse.async = true;
+            gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(gcse, s);
+        })();
+        $(window).on("scroll", function () {
+            if ($(window).scrollTop() > 50) {
+                $(".header").addClass("active");
+            } else {
+                //remove the background property so it comes transparent again (defined in your css)
+                $(".header").removeClass("active");
+            }
+        });
+
+
+
+        var input = document.getElementById("txtEmail");
+        input.focus();
+        input.addEventListener("keyup", function (event) {
+            event.preventDefault();
+            if (event.keyCode === 13) {
+                document.getElementById("btnSubscribe").click();
+            }
+        });
+
+        $("#btnSubscribe").click(function () {
+            var email = $("#txtEmail").val();
+            debugger;
+
+            var vald = validateEmail(email);
+            if (!vald) {
+                alert('Please enter a valid e-mail address');
+                return;
+            }
+
+            $.post("Newsletters/Subscribe?email=" + email + "&name=" + email, function (data, status) {
+                $("#ctrlSubscribe").hide();
+
+                if (data == "Reg") {
+                    $("#msgSubscribe").text("Thank you for subscribing our newsletter.");
+                }
+                else if (data == "Exists") {
+                    $("#msgSubscribe").text("Email already exists in subscription list.");
+                }
+                $("#msgSubscribe").show();
+            });
+        });
+
+        function validateEmail(email) {
+
+            var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+            return re.test(email);
+        }
+
+    </script>
+</body>
+</html>

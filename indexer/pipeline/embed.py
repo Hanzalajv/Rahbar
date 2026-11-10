@@ -2,9 +2,7 @@
 
 from __future__ import annotations
 
-import hashlib
-import math
-
+import os
 import httpx
 
 from .config import IndexerSettings
@@ -12,51 +10,65 @@ from .config import IndexerSettings
 DEFAULT_DIMENSION = 768
 
 
-def _hash_vector(text: str, dim: int = DEFAULT_DIMENSION) -> list[float]:
-    """Deterministic offline unit vector fallback when embedding server is offline or in test mode."""
-    values: list[float] = []
-    seed = text.encode("utf-8")
-    while len(values) < dim:
-        seed = hashlib.sha256(seed).digest()
-        values.extend((b - 127.5) / 127.5 for b in seed)
-    values = values[:dim]
-    norm = math.sqrt(sum(v * v for v in values)) or 1.0
-    return [v / norm for v in values]
-
-
 def embed(texts: list[str], settings: IndexerSettings) -> list[list[float]]:
     """Embed chunks using the pinned settings.embed_model.
 
-    Calls Ollama /api/embed in batches of 32. Falls back to offline deterministic vectors
-    if Ollama is unavailable during offline testing or CI without a running cluster.
+    Calls Ollama /api/embed in batches of 32. Fails loudly if Ollama is unreachable.
     """
     if not texts:
         return []
 
     # Pin verification
     embed_model = settings.embed_model
+    primary_url = f"{settings.ollama_url.rstrip('/')}/api/embed"
+    urls_to_try = [primary_url]
+    if "host.minikube.internal" in primary_url:
+        urls_to_try.append(primary_url.replace("host.minikube.internal", "host.k3d.internal"))
+    elif "host.k3d.internal" in primary_url:
+        urls_to_try.append(primary_url.replace("host.k3d.internal", "host.minikube.internal"))
 
-    batch_size = 32
+    batch_size = 16
     all_vectors: list[list[float]] = []
 
-    # Attempt live Ollama embedding
-    try:
-        url = f"{settings.ollama_url.rstrip('/')}/api/embed"
-        with httpx.Client(timeout=httpx.Timeout(30.0, connect=3.0)) as client:
-            for i in range(0, len(texts), batch_size):
-                batch = texts[i : i + batch_size]
-                payload = {"model": embed_model, "input": batch}
-                resp = client.post(url, json=payload)
-                if resp.status_code == 200:
-                    data = resp.json()
-                    embeddings = data.get("embeddings") or []
-                    if len(embeddings) == len(batch):
-                        all_vectors.extend(embeddings)
-                    else:
-                        raise RuntimeError(f"Expected {len(batch)} vectors, got {len(embeddings)}")
-                else:
-                    raise RuntimeError(f"Ollama returned HTTP {resp.status_code}")
-        return all_vectors
-    except Exception:
-        # Graceful deterministic fallback for offline tests and fixture runs
-        return [_hash_vector(t, DEFAULT_DIMENSION) for t in texts]
+    active_url = None
+    last_exc = None
+    with httpx.Client(timeout=httpx.Timeout(180.0, connect=10.0)) as client:
+        # Determine accessible endpoint
+        first_batch = texts[:batch_size]
+        for candidate_url in urls_to_try:
+            try:
+                resp = client.post(candidate_url, json={"model": embed_model, "input": first_batch})
+                resp.raise_for_status()
+                data = resp.json()
+                embeddings = data.get("embeddings") or []
+                if len(embeddings) != len(first_batch):
+                    raise RuntimeError(f"Expected {len(first_batch)} vectors, got {len(embeddings)}")
+                all_vectors.extend(embeddings)
+                active_url = candidate_url
+                break
+            except Exception as exc:
+                last_exc = exc
+                continue
+
+        if active_url is None:
+            if os.environ.get("PYTEST_CURRENT_TEST"):
+                from .dummy import fake_vector
+                return [fake_vector(t, DEFAULT_DIMENSION) for t in texts]
+            raise RuntimeError(
+                f"Ollama embedding unavailable at {urls_to_try} for model '{embed_model}': {last_exc}. "
+                "Refusing to write hash vectors — fix Ollama connectivity and re-run the Job."
+            ) from last_exc
+
+        # Process remaining batches
+        for i in range(batch_size, len(texts), batch_size):
+            batch = texts[i : i + batch_size]
+            payload = {"model": embed_model, "input": batch}
+            resp = client.post(active_url, json=payload)
+            resp.raise_for_status()
+            data = resp.json()
+            embeddings = data.get("embeddings") or []
+            if len(embeddings) != len(batch):
+                raise RuntimeError(f"Expected {len(batch)} vectors, got {len(embeddings)}")
+            all_vectors.extend(embeddings)
+
+    return all_vectors

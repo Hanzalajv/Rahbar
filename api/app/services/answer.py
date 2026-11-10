@@ -68,7 +68,11 @@ def answer_question(
 
     # 2. Retrieve top-k passages from Chroma
     t_ret_start = time.perf_counter()
-    passages = retriever.retrieve(question, k=settings.top_k)
+    try:
+        passages = retriever.retrieve(question, k=settings.top_k)
+    except Exception as exc:
+        log.error("retrieval failed: %s", exc)
+        passages = []
     metrics.RETRIEVAL_LATENCY.observe(time.perf_counter() - t_ret_start)
 
     # 3. Relevance Floor Check: honest abstention when nothing meets quality threshold

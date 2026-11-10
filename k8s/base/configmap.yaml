@@ -12,8 +12,9 @@ data:
   CORPUS_DIR: "/corpus"
 
   # Retrieval parameters
+  RETRIEVER: "chroma"
   TOP_K: "5"
-  RELEVANCE_FLOOR: "0.65"
+  RELEVANCE_FLOOR: "0.30"
 
   # Semantic cache parameters
   CACHE_THRESHOLD: "0.92"
@@ -25,7 +26,7 @@ data:
   TEMPERATURE: "0.2"
   LLM_MODEL: "llama3.2:3b"
   LLM_PROVIDER: "ollama-host"
-  OLLAMA_URL: "http://host.minikube.internal:11434"
+  OLLAMA_URL: "http://host.k3d.internal:11434"
   HOSTED_BASE_URL: ""
 
   # Pinned embedding model across indexer and API

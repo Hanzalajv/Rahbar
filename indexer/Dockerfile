@@ -26,6 +26,7 @@ RUN apt-get update && \
 WORKDIR /app
 COPY --from=builder --chown=indexeruser:indexergroup /root/.local /home/indexeruser/.local
 COPY --chown=indexeruser:indexergroup pipeline/ /app/pipeline/
+COPY --chown=indexeruser:indexergroup corpus/ /corpus/
 
 USER indexeruser
 

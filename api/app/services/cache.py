@@ -69,17 +69,29 @@ class SemanticCache:
 
     def get(self, question: str) -> CachedAnswer | None:
         """Search cache for a semantic hit exceeding similarity threshold."""
-        query_vec = embed_query(question, self.settings)
+        query_vec = None
+        try:
+            query_vec = embed_query(question, self.settings)
+        except Exception as exc:
+            log.debug("cache lookup: embedding unavailable (%s), trying exact-match", exc)
 
         # 1. Search in-memory cache
         best_score = 0.0
         best_match = None
 
+        norm_q = question.strip().lower()
         for entry in self._local_cache:
-            sim = _cosine_similarity(query_vec, entry["embedding"])
-            if sim > best_score:
-                best_score = sim
-                best_match = entry
+            entry_q = entry.get("question", "").strip().lower()
+            if entry_q == norm_q:
+                ans_dict = dict(entry["answer"])
+                ans_dict["retrieved"] = entry.get("retrieved", [])
+                return CachedAnswer.model_validate(ans_dict)
+
+            if query_vec is not None and entry.get("embedding"):
+                sim = _cosine_similarity(query_vec, entry["embedding"])
+                if sim > best_score:
+                    best_score = sim
+                    best_match = entry
 
         # 2. Check threshold
         if best_match and best_score >= self.threshold:
@@ -102,7 +114,12 @@ class SemanticCache:
             log.debug("skip_cache: refusing to cache uncertain or uncited answer")
             return
 
-        query_vec = embed_query(question, self.settings)
+        query_vec = None
+        try:
+            query_vec = embed_query(question, self.settings)
+        except Exception as exc:
+            log.debug("cache store: embedding unavailable (%s), storing for exact-match", exc)
+
         refs = [
             RetrievedRef(chunk_id=p.chunk_id, source=p.source, section=p.section, page=p.page, text=p.text, score=p.score).model_dump()
             for p in (retrieved or [])

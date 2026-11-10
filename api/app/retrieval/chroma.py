@@ -2,9 +2,7 @@
 
 from __future__ import annotations
 
-import hashlib
 import logging
-import math
 import re
 from typing import Any
 
@@ -16,78 +14,46 @@ from ..schemas import Passage
 log = logging.getLogger("rahbar.retrieval.chroma")
 
 
-def _hash_vector(text: str, dim: int = 768) -> list[float]:
-    """Deterministic offline fallback unit vector when embedding provider is offline."""
-    values: list[float] = []
-    seed = text.encode("utf-8")
-    while len(values) < dim:
-        seed = hashlib.sha256(seed).digest()
-        values.extend((b - 127.5) / 127.5 for b in seed)
-    values = values[:dim]
-    norm = math.sqrt(sum(v * v for v in values)) or 1.0
-    return [v / norm for v in values]
-
-
 def embed_query(text: str, settings: Settings) -> list[float]:
-    """Embed query using settings.embed_model with live Ollama or deterministic fallback."""
+    """Embed query using settings.embed_model via Ollama /api/embed.
+
+    Fails loudly if Ollama is unreachable; never returns synthetic hash vectors.
+    """
+    primary_url = f"{settings.ollama_url.rstrip('/')}/api/embed"
+    urls_to_try = [primary_url]
+    if any(h in primary_url for h in ("host.k3d.internal", "host.minikube.internal")):
+        for alt in ("172.27.0.1", "172.17.0.1"):
+            alt_url = primary_url
+            for base in ("host.k3d.internal", "host.minikube.internal"):
+                alt_url = alt_url.replace(base, alt)
+            if alt_url not in urls_to_try:
+                urls_to_try.append(alt_url)
+
+    last_exc = None
     try:
-        url = f"{settings.ollama_url.rstrip('/')}/api/embed"
-        with httpx.Client(timeout=httpx.Timeout(15.0, connect=2.0)) as client:
-            resp = client.post(url, json={"model": settings.embed_model, "input": [text]})
-            if resp.status_code == 200:
-                data = resp.json()
-                embeddings = data.get("embeddings") or []
-                if embeddings and len(embeddings[0]) > 0:
-                    return embeddings[0]
-    except Exception:
-        pass
-    return _hash_vector(text, 768)
+        with httpx.Client(timeout=httpx.Timeout(30.0, connect=2.0)) as client:
+            for url in urls_to_try:
+                try:
+                    resp = client.post(url, json={"model": settings.embed_model, "input": [text]})
+                    resp.raise_for_status()
+                    data = resp.json()
+                    embeddings = data.get("embeddings") or []
+                    if embeddings and len(embeddings[0]) > 0:
+                        return embeddings[0]
+                except Exception as exc:
+                    last_exc = exc
+                    continue
+            raise RuntimeError(f"Ollama returned empty embedding for model '{settings.embed_model}'")
+    except Exception as exc:
+        raise RuntimeError(
+            f"Failed to embed query with model '{settings.embed_model}' at {urls_to_try}: {last_exc or exc}"
+        ) from (last_exc or exc)
 
 
-_STOPWORDS = {
-    "what", "is", "are", "the", "and", "for", "from", "with", "that", "this",
-    "how", "does", "under", "which", "when", "can", "have", "been", "will",
-    "shall", "about", "who", "whom", "into", "onto", "then", "there", "their"
-}
-
-
-def _calculate_score(question: str, doc_text: str, source: str, section: str, cosine_dist: float) -> float:
-    cosine_sim = max(0.0, 1.0 - float(cosine_dist))
-    q_lower = question.lower()
-    doc_lower = doc_text.lower()
-    sec_lower = section.lower()
-    src_lower = source.lower()
-
-    q_words = [
-        w for w in re.findall(r"\b[a-zA-Z0-9_\-\.%]+\b|[a-d][\+\-]", q_lower)
-        if (len(w) >= 2 or w in {"f", "i"}) and w not in _STOPWORDS
-    ]
-    if not q_words:
-        return round(cosine_sim, 4)
-
-    matches = sum(1 for w in q_words if w in doc_lower or w in sec_lower)
-    score = matches / len(q_words)
-
-    # Subject signals
-    if "sgpa" in q_lower or "b+" in q_lower:
-        if "grading-criteria" in src_lower:
-            score += 0.40
-    if "generative ai" in q_lower or "discipline committee" in q_lower:
-        if "student-handbook" in src_lower:
-            score += 0.40
-            if "generative ai" in q_lower and "xii" in sec_lower:
-                score += 0.30
-    if any(k in q_lower for k in ["attendance", "warning", "cgpa", "fyp", "restoration", "theory and associated lab", "repeat"]):
-        if "academic-rules-handbook" in src_lower:
-            score += 0.25
-            if "repeat" in q_lower and "2026" in q_lower and "grading and gpa" in sec_lower:
-                score += 0.50
-
-    for w in q_words:
-        if len(w) >= 4 and w in sec_lower:
-            score += 0.15
-
-    return round(score, 4)
+def _calculate_score(cosine_dist: float) -> float:
+    """True cosine similarity derived from Chroma cosine distance (distance = 1 - cosine_sim)."""
+    cosine_sim = max(0.0, min(1.0, 1.0 - float(cosine_dist)))
+    return round(cosine_sim, 4)
 
 
 class ChromaRetriever:
@@ -114,15 +80,24 @@ class ChromaRetriever:
                         settings=ChromaSettings(anonymized_telemetry=False),
                     )
                     self.client.heartbeat()
-                except Exception:
-                    persist_dir = os.environ.get("CHROMA_PERSIST_DIR", "./chroma_data")
-                    self.client = chromadb.PersistentClient(path=persist_dir)
+                except Exception as exc:
+                    raise RuntimeError(
+                        f"Failed to connect to Chroma HTTP service at {settings.chroma_host}:{settings.chroma_port}: {exc}"
+                    ) from exc
         self._collection = None
 
     @property
     def collection(self) -> Any:
-        if self._collection is None:
-            self._collection = self.client.get_collection(self.settings.collection)
+        """Fetch or re-fetch collection handle if stale or recreated by indexer."""
+        if self._collection is not None:
+            try:
+                self._collection.count()
+                return self._collection
+            except Exception as exc:
+                log.info("collection handle stale or recreated, refreshing: %s", exc)
+                self._collection = None
+
+        self._collection = self.client.get_collection(self.settings.collection)
         return self._collection
 
     def retrieve(self, question: str, k: int | None = None) -> list[Passage]:
@@ -138,42 +113,39 @@ class ChromaRetriever:
         if not asks_older:
             where_filter = {"superseded": False}
 
+        results: dict[str, Any] = {}
         try:
             results = self.collection.query(
                 query_embeddings=[query_vector],
-                n_results=min(50, max(top_k * 5, 20)),
+                n_results=min(20, max(top_k * 2, 10)),
                 where=where_filter,
                 include=["documents", "metadatas", "distances"],
             )
-            ids = results.get("ids", [[]])[0]
-            docs = results.get("documents", [[]])[0]
-            metas = results.get("metadatas", [[]])[0]
-            dists = results.get("distances", [[]])[0]
         except Exception as exc:
-            log.warning("chroma vector query warning: %s", exc)
-            ids, docs, metas, dists = [], [], [], []
-
-        # If offline fallback hash vectors were used (distances cluster around 1.0),
-        # supplement with collection records to ensure true lexical/grounding candidates are evaluated
-        if not ids or (dists and min(dists) > 0.85):
+            log.warning("chroma query failed, refreshing collection handle: %s", exc)
+            self._collection = None
             try:
-                all_data = self.collection.get(where=where_filter, include=["documents", "metadatas"])
-                ids = all_data.get("ids") or []
-                docs = all_data.get("documents") or []
-                metas = all_data.get("metadatas") or []
-                dists = [1.0] * len(ids)
-            except Exception:
-                pass
+                results = self.collection.query(
+                    query_embeddings=[query_vector],
+                    n_results=min(20, max(top_k * 2, 10)),
+                    where=where_filter,
+                    include=["documents", "metadatas", "distances"],
+                )
+            except Exception as exc2:
+                log.error("chroma vector query error after refresh: %s", exc2)
+                results = {}
+
+        ids = results.get("ids", [[]])[0] if results else []
+        docs = results.get("documents", [[]])[0] if results else []
+        metas = results.get("metadatas", [[]])[0] if results else []
+        dists = results.get("distances", [[]])[0] if results else []
 
         passages: list[Passage] = []
         for chunk_id, doc_text, meta, dist in zip(ids, docs, metas, dists):
             source = str(meta.get("source", "unknown"))
             section = str(meta.get("section", "unknown"))
-            if "student-handbook" in source.lower() and any(term in doc_text.lower() for term in ["generative ai", "unauthorized use"]):
-                if "xii" not in section.lower():
-                    section = f"XII. Policy on Generative AI Based Tools - {section}"
             page = int(meta["page"]) if "page" in meta and meta["page"] is not None else None
-            score = _calculate_score(question, doc_text, source, section, dist)
+            score = _calculate_score(dist)
 
             passages.append(
                 Passage(
@@ -186,7 +158,7 @@ class ChromaRetriever:
                 )
             )
 
-        # Rank by hybrid score descending
+        # Rank by true cosine similarity descending
         passages.sort(key=lambda p: p.score, reverse=True)
         passages = passages[:top_k]
 
@@ -196,7 +168,7 @@ class ChromaRetriever:
                 "top_k": top_k,
                 "retrieved_count": len(passages),
                 "chunk_ids": [p.chunk_id for p in passages],
-                "scores": [p.score for p in passages],
+                "cosine_scores": [p.score for p in passages],
                 "filter_superseded": not asks_older,
             },
         )
